@@ -1,53 +1,36 @@
 # Artemis Windows
 
-An experimental native Windows client inspired by [Artemis Android](https://github.com/MobinYengejehi/Artemis).
+A planned Windows fork of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), bringing over the useful desktop and office features of [Artemis Android](https://github.com/MobinYengejehi/Artemis).
 
-The goal is to bring Artemis's office and remote-desktop-oriented improvements to Windows while retaining the low-latency streaming performance and hardware acceleration of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt).
+> Status: reviewed implementation plan. This repository does not yet contain a working Windows client, an imported Moonlight codebase, or verified builds.
 
-> Status: planning and architecture stage. No working Windows client has been implemented yet.
+## Direction
 
-## Project direction
+**Fork Moonlight PC first, establish a working Windows baseline, then add the Artemis features that Moonlight does not already provide.** Keep upstream's Qt/QML interface, SDL input/session code, hardware decoding, build scripts, and source layout. Port behavior from Android at the relevant boundary.
 
-Artemis Android is built around Android UI APIs, Android NDK integration, and `moonlight-common-c`. A direct APK-to-Windows conversion would not produce a good native application, so this project will port the relevant behavior into the Qt/QML + SDL architecture used by Moonlight PC.
+Moonlight already supplies much of the foundation, including custom resolution/frame-rate settings, direct mouse control, hardware decoding, HDR, and AV1. These are baseline features to preserve and test. See the [source audit and feature matrix](docs/FEATURE_AUDIT.md) for evidence and the remaining work.
 
-## Initial goals
+## First release scope
 
-- Native Windows 10/11 client, starting with x64.
-- Compatibility with Sunshine and Apollo hosts where practical.
-- Low-latency hardware decoding through the existing Moonlight PC stack.
-- Artemis-inspired controls for custom resolution, bitrate, scaling, shortcuts, clipboard, and remote-desktop workflows.
-- First-class keyboard, mouse, gamepad, multi-monitor, and high-DPI support.
-- Portable ZIP build first, followed by an installer once the client is stable.
+- Windows x64, with Windows 11 as the primary validation target; exact Windows 10 compatibility is a baseline-build gate.
+- Existing Sunshine streaming behavior, plus individually tested Apollo extensions.
+- Desktop profiles, session shortcuts, clear disconnect/quit actions, and reliable pointer/scaling behavior.
+- Opt-in plain-text clipboard transfer with Apollo, followed by host-managed virtual-display integration.
+- Portable ZIP preview; installer and signing follow release validation.
 
-## Planned architecture
+Touch-overlay parity, ARM64 release qualification, simultaneous multi-stream viewing, and file transfer are later work. Existing upstream capabilities should remain intact.
 
-```text
-Qt/QML user interface
-        |
-Windows input, display, clipboard, and settings services
-        |
-Moonlight PC streaming/session layer
-        |
-moonlight-common-c + SDL2 + FFmpeg/hardware decode
-        |
-Sunshine / Apollo host
-```
+## Plan
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/PORTING_PLAN.md](docs/PORTING_PLAN.md) for the working outline.
+1. [Porting plan](docs/PORTING_PLAN.md): implementation order, dependencies, and completion criteria.
+2. [Architecture](docs/ARCHITECTURE.md): upstream integration points and ownership boundaries.
+3. [Feature audit](docs/FEATURE_AUDIT.md): pinned sources, existing features, and Apollo protocol findings.
+4. [Validation plan](docs/VALIDATION.md): functional, compatibility, performance, and release checks.
 
-## Milestones
+The next implementation step is the Moonlight baseline integration described in milestone M0. The September 12, 2026 review is source-based; no hardware or interoperability results are claimed.
 
-1. Audit Artemis Android and Moonlight PC feature differences.
-2. Build an unmodified Moonlight PC baseline on Windows.
-3. Add Artemis settings and remote-desktop features incrementally.
-4. Add Apollo-specific integrations behind capability detection.
-5. Benchmark latency, frame pacing, decoding, input, and multi-monitor behavior.
-6. Produce signed portable and installer builds.
+## Licensing and maintenance
 
-## Licensing
+The reviewed Artemis and Moonlight repositories include GPLv3 license texts. Preserve their applicable notices and licensing when importing code; ship the corresponding source and dependency/license information with releases. See the [upstream Moonlight license](https://github.com/moonlight-stream/moonlight-qt/blob/e3fd29e4d7dc5723d8d0da7d19e2698daec74456/LICENSE).
 
-Artemis and Moonlight PC are GPLv3 projects. Any redistributed derivative work must preserve the applicable copyright notices, license terms, and corresponding source requirements. See the upstream repositories before distributing binaries.
-
-## Contributing
-
-This repository is intentionally only an outline for now. Implementation decisions should be recorded in issues or design notes before large feature work begins.
+Keep Artemis changes small and isolated so upstream maintenance and security fixes can be integrated regularly. This project is an independent derivative and should use its own application, settings, pairing, and package identity.

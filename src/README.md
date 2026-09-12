@@ -1,10 +1,14 @@
 # Source layout
 
-Implementation modules will be added here after the baseline Moonlight PC build is selected.
+This is currently a planning-only repository.
 
-The expected initial split is:
+The implementation will preserve the Moonlight PC fork's existing root layout:
 
-- `ui/` — Qt/QML views and models
-- `platform/windows/` — Windows display, clipboard, input, and packaging integration
-- `session/` — stream/session orchestration and capability detection
-- `diagnostics/` — performance and compatibility reporting
+- `app/gui/` — Qt/QML interface
+- `app/settings/` — preferences and profiles
+- `app/backend/` — hosts, pairing, HTTP, and Apollo integration
+- `app/streaming/` — sessions, input, decoding, and rendering
+- `moonlight-common-c/` — native protocol project and pinned submodule
+- `scripts/`, `wix/`, and root qmake projects — upstream build/package infrastructure
+
+Do not create a duplicate application under this `src/` directory. This placeholder can be removed when the upstream source import lands. See [the porting plan](../docs/PORTING_PLAN.md).
