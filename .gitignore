@@ -1,0 +1,29 @@
+# Qt / qmake / CMake
+build/
+out/
+*.user
+*.user.*
+*.qmake.stash
+/.qtc_clangd/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+x64/
+x86/
+Debug/
+Release/
+
+# Generated binaries and symbols
+*.exe
+*.dll
+*.pdb
+*.obj
+*.lib
+*.exp
+
+# Local tooling and OS files
+.codex/
+.DS_Store
+Thumbs.db
