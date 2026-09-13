@@ -1,7 +1,10 @@
-name: Build Windows x64 baseline
+name: Build Windows baseline
 on:
   workflow_call:
     inputs:
+      architecture:
+        required: true
+        type: string
       source-ref:
         required: true
         type: string
@@ -27,37 +30,68 @@ jobs:
           path: source
           submodules: recursive
           persist-credentials: false
-      - name: Install Qt
+      - name: Test build preflight guards
+        shell: pwsh
+        run: ./harness/scripts/test-baseline-preflight.ps1
+      - name: Install Qt x64 host kit
         uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4
         with:
           version: '6.11.2'
           arch: win64_msvc2022_64
           cache: true
+          set-env: false
+          add-tools-to-path: false
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@073e34d7c2ab4ae6961ed7cca690b3abd5ba5a7e
+      - name: Install Qt ARM64 target kit
+        if: inputs.architecture == 'arm64'
+        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4
+        with:
+          version: '6.11.2'
+          arch: win64_msvc2022_arm64_cross_compiled
+          cache: true
+          set-env: false
+          add-tools-to-path: false
           aqtsource: git+https://github.com/miurahr/aqtinstall.git@073e34d7c2ab4ae6961ed7cca690b3abd5ba5a7e
       - name: Verify and extract Windows dependencies
         shell: pwsh
-        run: ./harness/scripts/setup-baseline-deps.ps1 -SourceRoot ./source
+        run: ./harness/scripts/setup-baseline-deps.ps1 -SourceRoot ./source -Architecture '${{ inputs.architecture }}'
       - name: Build unsigned Release and collect evidence
         shell: pwsh
-        run: ./harness/scripts/build-baseline.ps1 -SourceRoot ./source
+        env:
+          TARGET_ARCH: ${{ inputs.architecture }}
+          QT_ROOT: ${{ runner.workspace }}/Qt/6.11.2
+        run: |
+          $kit = switch ($env:TARGET_ARCH) {
+            'x64' { 'msvc2022_64' }
+            'arm64' { 'msvc2022_arm64' }
+            default { throw "Unsupported target: $env:TARGET_ARCH" }
+          }
+          ./harness/scripts/build-baseline.ps1 -SourceRoot ./source -Architecture $env:TARGET_ARCH -QtBin "$env:QT_ROOT/$kit/bin"
       - name: Upload portable package
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: baseline-${{ inputs.label }}-windows-x64-${{ github.run_id }}
-          path: source/build/installer-x64-release/*.zip
+          name: baseline-${{ inputs.label }}-windows-${{ inputs.architecture }}-${{ github.run_id }}
+          path: source/build/installer-${{ inputs.architecture }}-release/*.zip
           if-no-files-found: error
           compression-level: 0
       - name: Upload symbols
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: symbols-${{ inputs.label }}-windows-x64-${{ github.run_id }}
-          path: source/build/symbols-x64-release/*.zip
+          name: symbols-${{ inputs.label }}-windows-${{ inputs.architecture }}-${{ github.run_id }}
+          path: source/build/symbols-${{ inputs.architecture }}-release/*.zip
+          if-no-files-found: error
+          compression-level: 0
+      - name: Upload corresponding source
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: source-${{ inputs.label }}-windows-${{ inputs.architecture }}-${{ github.run_id }}
+          path: source/build/evidence/${{ inputs.architecture }}/source.tar.gz
           if-no-files-found: error
           compression-level: 0
       - name: Upload build evidence even on failure
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: evidence-${{ inputs.label }}-windows-x64-${{ github.run_id }}
-          path: source/build/evidence/
+          name: evidence-${{ inputs.label }}-windows-${{ inputs.architecture }}-${{ github.run_id }}
+          path: source/build/evidence/${{ inputs.architecture }}/
           if-no-files-found: warn
