@@ -1,6 +1,16 @@
 {
-  "release": "v15",
-  "architecture": "x64",
-  "url": "https://github.com/moonlight-stream/moonlight-qt-deps/releases/download/v15/Windows-x64.zip",
-  "sha256": "60003d5cf5147100352dede9836c1ba3c537dfff938fe0e3ef947bd4f51ca622"
+  "x64": {
+    "release": "v15",
+    "sourceCommit": "2ab26b8cd5c42899ffd97c573ff2c678738f41b1",
+    "architecture": "x64",
+    "url": "https://github.com/moonlight-stream/moonlight-qt-deps/releases/download/v15/Windows-x64.zip",
+    "sha256": "60003d5cf5147100352dede9836c1ba3c537dfff938fe0e3ef947bd4f51ca622"
+  },
+  "arm64": {
+    "release": "v15",
+    "sourceCommit": "2ab26b8cd5c42899ffd97c573ff2c678738f41b1",
+    "architecture": "arm64",
+    "url": "https://github.com/moonlight-stream/moonlight-qt-deps/releases/download/v15/Windows-ARM64.zip",
+    "sha256": "db61462026107a3a60b1f00b7469e6ddc4f56ccfc424724e7884f0001fe7c55d"
+  }
 }

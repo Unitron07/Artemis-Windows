@@ -33,9 +33,9 @@ The first useful preview should preserve Sunshine streaming and add desktop prof
 
 ## M0A — Native Windows ARM64 baseline (next priority)
 
-- [ ] Extend the existing build harness to accept explicit x64/ARM64 targets. Keep the current x64 baseline working and preserve upstream source layout.
+- [x] Extend the existing build harness to accept explicit x64/ARM64 targets, preserving upstream source layout and the default x64 command. Dependency/preflight tests pass; full ARM64 build validation remains below.
 - [ ] Use the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tools. Keep host-side Qt build tools distinct from deployed ARM64 runtime files.
-- [ ] Pin and verify the v15 Windows ARM64 dependency archive, record its library versions, hashes, licenses, and source provenance, and isolate dependencies/output folders by target architecture.
+- [x] Pin and verify the v15 Windows ARM64 dependency archive; record versions, hashes and source/license locations in [dependency notes](DEPENDENCIES_WINDOWS.md). Isolate dependencies with one target per checkout and architecture-specific output/evidence folders.
 - [ ] Build both unmodified upstream and the candidate for ARM64 in Windows CI. Keep x64 coverage; publish separate portable ZIPs, symbols, source, and compiler/SDK/dependency evidence for each architecture.
 - [ ] Verify PE machine type for the client and every shipped native runtime DLL, including Qt plugins, SDL, codecs, and AntiHooking. Reject x64 DLL contamination in the ARM64 package. Build tools used on the host are outside this runtime check.
 - [ ] Test the portable ARM64 build on a real Windows 11 ARM64 device without development tools: verify native process architecture, launch, discovery/manual host, pairing, H.264 1080p60 SDR, audio, keyboard, mouse, and gamepad with separately recorded Sunshine and Apollo hosts.

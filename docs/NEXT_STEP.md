@@ -12,6 +12,8 @@ The executable still identifies as Moonlight. M0A keeps this baseline while addi
 
 ## Implementation scope
 
+Steps 1 and 2 (build target selection and pinned dependencies) are implemented in the harness. Both archive checksums and dependency integrity guards were tested locally. Use separate x64/ARM64 checkouts to isolate upstream's shared dependency headers. Full ARM64 compilation has not yet been validated; the next task is ARM64 CI, followed by package and device verification.
+
 | Area | Starting files | Required change |
 | --- | --- | --- |
 | Dependency inputs | `scripts/baseline-deps.json`, `scripts/setup-baseline-deps.ps1`, upstream `setup-deps.ps1` | Select x64 or ARM64 explicitly, pin the matching archive and checksum, inventory versions/licenses, and prevent mixing target dependencies |
@@ -31,4 +33,4 @@ Reuse the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tooling. Re
 - H.264 1080p60 SDR pairing/streaming with audio, keyboard, mouse and gamepad passes against recorded Sunshine and Apollo versions. Record available codec paths, sleep/resume, display/input behavior, and the soak test from [VALIDATION.md](VALIDATION.md).
 - An ARM64 performance baseline uses unmodified ARM64 Moonlight on the same hardware and inputs. Missing hardware, host access, or untested codecs remain explicit open gates.
 
-The first implementation deliverable is an ARM64 build/CI PR. Do not mark M0A complete merely because CI passes; attach real-device results before claiming native ARM64 qualification. After M0A, begin M1 by isolating Artemis names, settings, pairing credentials, logs, update identity, and installer identifiers on both targets, then add profiles and session actions.
+The next implementation deliverable is ARM64 CI using the target-aware harness. Do not mark M0A complete merely because CI passes; attach real-device results before claiming native ARM64 qualification. After M0A, begin M1 by isolating Artemis names, settings, pairing credentials, logs, update identity, and installer identifiers on both targets, then add profiles and session actions.
