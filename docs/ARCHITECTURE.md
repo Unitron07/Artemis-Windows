@@ -4,7 +4,13 @@
 
 Use Moonlight PC as the application, retaining its source history and layout. Do not build a second Windows shell or extract its streaming internals into a new framework for the first release. This follows the project owner's September 12, 2026 direction.
 
-The [audit](FEATURE_AUDIT.md) pins the reviewed code. The implementation baseline must pass M0 before that revision, or a documented alternative, becomes the supported build baseline.
+The [audit](FEATURE_AUDIT.md) pins the reviewed code. M0 integration is merged, x64 CI passed, and the owner confirmed the tested client works; see [BASELINE.md](BASELINE.md) for the evidence and remaining qualification records. Native Windows ARM64 is the next implementation priority, before M1 desktop features.
+
+## Native Windows targets
+
+Use the same Qt/QML/C++ application and streaming stack for x64 and ARM64. Compile the client and every process-loaded runtime dependency for the target architecture. An x64 executable running under Windows emulation does not meet the native ARM64 goal. Cross-compilation from an x64 build host is acceptable; host-side Qt tools must not be deployed as ARM64 runtime dependencies.
+
+Reuse upstream's ARM64 Qt/MSVC/qmake and packaging paths. Keep architecture-specific dependency manifests, output directories, symbols, and runtime PE verification while sharing feature implementation. Qualify hardware decoding, input, display behavior, and performance on actual Windows 11 ARM64 hardware. M0A owns the build and device baseline; subsequent identity, profiles, and Apollo work must preserve both targets. No Windows UI framework rewrite is required for native ARM64.
 
 ## Integration points
 

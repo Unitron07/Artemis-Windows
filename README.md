@@ -1,24 +1,24 @@
 # Artemis Windows
 
-A planned Windows fork of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), bringing over the useful desktop and office features of [Artemis Android](https://github.com/MobinYengejehi/Artemis).
+A Windows fork of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), bringing over the useful desktop and office features of [Artemis Android](https://github.com/MobinYengejehi/Artemis).
 
-> Status: M0 baseline import under validation. Moonlight source and history are imported; Artemis features and independent application identity are not implemented. Hardware streaming and clean-machine qualification remain pending.
+> Status: M0 baseline integration merged in [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1). Windows x64 CI passed and the project owner confirmed the tested client works. The next priority is a native Windows ARM64 baseline (M0A). Artemis identity and features follow; detailed hardware qualification remains tracked in the [baseline report](docs/BASELINE.md).
 
 ## Direction
 
-**Fork Moonlight PC first, establish a working Windows baseline, then add the Artemis features that Moonlight does not already provide.** Keep upstream's Qt/QML interface, SDL input/session code, hardware decoding, build scripts, and source layout. Port behavior from Android at the relevant boundary.
+**Establish native Windows x64 and ARM64 baselines, then add the Artemis features that Moonlight does not already provide.** Keep upstream's Qt/QML interface, SDL input/session code, hardware decoding, build scripts, and source layout. Port behavior from Android at the relevant boundary.
 
 Moonlight already supplies much of the foundation, including custom resolution/frame-rate settings, direct mouse control, hardware decoding, HDR, and AV1. These are baseline features to preserve and test. See the [source audit and feature matrix](docs/FEATURE_AUDIT.md) for evidence and the remaining work.
 
 ## First release scope
 
-- Windows x64, with Windows 11 as the primary validation target; exact Windows 10 compatibility is a baseline-build gate.
+- Windows 11 x64 and native ARM64 are first-preview targets. ARM64 build and hardware qualification are the immediate priority; Windows 10 x64 compatibility remains a separate, unverified target.
 - Existing Sunshine streaming behavior, plus individually tested Apollo extensions.
 - Desktop profiles, session shortcuts, clear disconnect/quit actions, and reliable pointer/scaling behavior.
 - Opt-in plain-text clipboard transfer with Apollo, followed by host-managed virtual-display integration.
 - Portable ZIP preview; installer and signing follow release validation.
 
-Touch-overlay parity, ARM64 release qualification, simultaneous multi-stream viewing, and file transfer are later work. Existing upstream capabilities should remain intact.
+Touch-overlay parity, simultaneous multi-stream viewing, and file transfer are later work. Existing upstream capabilities should remain intact.
 
 ## Plan
 
@@ -27,7 +27,7 @@ Touch-overlay parity, ARM64 release qualification, simultaneous multi-stream vie
 3. [Feature audit](docs/FEATURE_AUDIT.md): pinned sources, existing features, and Apollo protocol findings.
 4. [Validation plan](docs/VALIDATION.md): functional, compatibility, performance, and release checks.
 
-Start with the [Windows build instructions](docs/BUILD_WINDOWS.md) and [M0 baseline report](docs/BASELINE.md). The [upstream README](docs/MOONLIGHT_README.md) is preserved separately. CI builds unmodified upstream before the candidate and uploads unsigned portable packages, symbols, and evidence. M0 remains open until its build and real-machine gates pass.
+Start implementation with [M0A: native Windows ARM64](docs/NEXT_STEP.md). The current [Windows build instructions](docs/BUILD_WINDOWS.md) and CI cover x64; ARM64 support in the Artemis build harness is planned next. The [M0 report](docs/BASELINE.md) records successful CI and the owner's test confirmation, along with outstanding qualification details. The [upstream README](docs/MOONLIGHT_README.md) is preserved separately.
 
 ## Licensing and maintenance
 
