@@ -1,0 +1,63 @@
+name: Build Windows x64 baseline
+on:
+  workflow_call:
+    inputs:
+      source-ref:
+        required: true
+        type: string
+      label:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - name: Checkout build harness
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          path: harness
+          persist-credentials: false
+      - name: Checkout pinned source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ inputs.source-ref }}
+          path: source
+          submodules: recursive
+          persist-credentials: false
+      - name: Install Qt
+        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4
+        with:
+          version: '6.11.2'
+          arch: win64_msvc2022_64
+          cache: true
+          aqtsource: git+https://github.com/miurahr/aqtinstall.git@073e34d7c2ab4ae6961ed7cca690b3abd5ba5a7e
+      - name: Verify and extract Windows dependencies
+        shell: pwsh
+        run: ./harness/scripts/setup-baseline-deps.ps1 -SourceRoot ./source
+      - name: Build unsigned Release and collect evidence
+        shell: pwsh
+        run: ./harness/scripts/build-baseline.ps1 -SourceRoot ./source
+      - name: Upload portable package
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: baseline-${{ inputs.label }}-windows-x64-${{ github.run_id }}
+          path: source/build/installer-x64-release/*.zip
+          if-no-files-found: error
+          compression-level: 0
+      - name: Upload symbols
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: symbols-${{ inputs.label }}-windows-x64-${{ github.run_id }}
+          path: source/build/symbols-x64-release/*.zip
+          if-no-files-found: error
+          compression-level: 0
+      - name: Upload build evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: evidence-${{ inputs.label }}-windows-x64-${{ github.run_id }}
+          path: source/build/evidence/
+          if-no-files-found: warn

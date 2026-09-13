@@ -1,0 +1,24 @@
+name: Windows baseline
+on:
+  push:
+    branches: [main, 'codex/**']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  upstream:
+    uses: ./.github/workflows/build-windows-baseline.yml
+    with:
+      source-ref: e3fd29e4d7dc5723d8d0da7d19e2698daec74456
+      label: upstream
+  candidate:
+    needs: upstream
+    uses: ./.github/workflows/build-windows-baseline.yml
+    with:
+      source-ref: ${{ github.sha }}
+      label: candidate

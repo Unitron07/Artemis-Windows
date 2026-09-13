@@ -2,7 +2,7 @@
 
 A planned Windows fork of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), bringing over the useful desktop and office features of [Artemis Android](https://github.com/MobinYengejehi/Artemis).
 
-> Status: reviewed implementation plan. This repository does not yet contain a working Windows client, an imported Moonlight codebase, or verified builds.
+> Status: M0 baseline import under validation. Moonlight source and history are imported; Artemis features and independent application identity are not implemented. Hardware streaming and clean-machine qualification remain pending.
 
 ## Direction
 
@@ -27,7 +27,7 @@ Touch-overlay parity, ARM64 release qualification, simultaneous multi-stream vie
 3. [Feature audit](docs/FEATURE_AUDIT.md): pinned sources, existing features, and Apollo protocol findings.
 4. [Validation plan](docs/VALIDATION.md): functional, compatibility, performance, and release checks.
 
-The next implementation step is the Moonlight baseline integration described in milestone M0. The September 12, 2026 review is source-based; no hardware or interoperability results are claimed.
+Start with the [Windows build instructions](docs/BUILD_WINDOWS.md) and [M0 baseline report](docs/BASELINE.md). The [upstream README](docs/MOONLIGHT_README.md) is preserved separately. CI builds unmodified upstream before the candidate and uploads unsigned portable packages, symbols, and evidence. M0 remains open until its build and real-machine gates pass.
 
 ## Licensing and maintenance
 
