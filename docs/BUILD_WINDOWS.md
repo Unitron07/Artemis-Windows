@@ -61,8 +61,12 @@ These are the implemented commands, not a claim of a completed ARM64 build. Use 
 
 ## CI and qualification
 
-`Windows baseline` runs on main and `codex/**` pushes, PRs targeting main, and manual dispatch. The upstream job must pass before the candidate starts. Both use recursive checkout and the same pinned Qt/dependency/action inputs. Existing non-Windows reusable workflows remain in the tree for upstream maintenance but are not invoked by this Windows workflow. Tokens are read-only and checkout credentials are not persisted. Logs upload even when the build fails.
+`Windows baseline` builds x64 and ARM64 in separate jobs and runs on main and `codex/**` pushes, PRs targeting main, and manual dispatch. Both upstream architecture jobs must pass before the candidate jobs start. Each job uses its own fresh source checkout and architecture-specific dependency archive. CI installs the pinned Qt 6.11.2 x64 host kit and, for ARM64, the matching cross kit; the wrapper receives an explicit target and Qt path. Both use recursive checkout and the same pinned Qt/dependency/action inputs. Existing non-Windows reusable workflows remain in the tree for upstream maintenance but are not invoked by this Windows workflow. Tokens are read-only and checkout credentials are not persisted. Logs upload even when the build fails.
 
 The x64 upstream and candidate builds passed in [run 34736992552](https://github.com/Unitron07/Artemis-Windows/actions/runs/34736992552). The owner reported a successful manual test before merging PR #1; detailed client/host records remain in the qualification backlog.
 
 Hosted builds do not validate GPU decoding, pairing, performance, or OS compatibility. Complete the [baseline report](BASELINE.md) and [validation checklist](VALIDATION.md) on real x64 and ARM64 Windows machines against separately recorded Sunshine and Apollo versions. These CI packages are development evidence, not a qualified Artemis release. ARM64 qualification is part of M0A and the first-preview scope; Windows 10 x64 compatibility remains separate.
+
+### CI artifact names
+
+Each successful upstream/candidate architecture job uploads `baseline-<label>-windows-<architecture>-<run>`, `symbols-<label>-windows-<architecture>-<run>`, `source-<label>-windows-<architecture>-<run>`, and `evidence-<label>-windows-<architecture>-<run>`. Source includes recursive submodule contents. Evidence includes source and harness revisions, Qt host/target paths and versions for ARM64, compiler/SDK details, dependency inventory, and SHA-256 hashes for the portable, symbols, and source archives. Evidence uploads are attempted on failure as well. Package PE validation and real-device qualification remain separate M0A gates.

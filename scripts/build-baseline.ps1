@@ -38,6 +38,9 @@ try {
         source = $sha
         architecture = $Architecture
         configuration = "Release $Architecture; unsigned"
+        harness = (git -C $PSScriptRoot rev-parse HEAD)
+        workflowRun = $env:GITHUB_RUN_ID
+        workflowAttempt = $env:GITHUB_RUN_ATTEMPT
         qtBin = $QtBin
         command = 'scripts\build-arch.bat Release'
         os = [System.Environment]::OSVersion.VersionString
@@ -49,6 +52,15 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'qmake failed' }
     $qtVersion = qmake -query QT_VERSION
     if ($LASTEXITCODE -ne 0 -or $qtVersion.Trim() -ne '6.11.2') { throw 'Qt 6.11.2 is required' }
+    if ($Architecture -eq 'arm64') {
+        $hostBin = Join-Path (Split-Path (Split-Path $QtBin -Parent) -Parent) 'msvc2022_64/bin'
+        $hostVersion = & (Join-Path $hostBin 'qmake.exe') -query QT_VERSION
+        if ($LASTEXITCODE -ne 0 -or $hostVersion.Trim() -ne $qtVersion.Trim()) {
+            throw 'ARM64 target and x64 host Qt versions must match'
+        }
+        "target=$QtBin; version=$qtVersion", "host=$hostBin; version=$hostVersion" |
+            Set-Content (Join-Path $evidence 'qt-kits.txt') -Encoding utf8
+    }
     # Match upstream's vswhere selection and record the actual compiler and SDK.
     $vswhere = Get-Command vswhere.exe -ErrorAction SilentlyContinue
     $vswherePath = if ($vswhere) { $vswhere.Source } else { Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe' }
@@ -111,7 +123,7 @@ This unsigned Moonlight baseline is not a qualified Artemis release.
     if ($LASTEXITCODE -ne 0) { throw 'Unable to include source notices' }
     tar -czf (Join-Path $evidence 'source.tar.gz') --exclude=.git --exclude=./build --exclude=./libs -C $SourceRoot .
     if ($LASTEXITCODE -ne 0) { throw 'Unable to archive source and submodules' }
-    Get-ChildItem "build/installer-$Architecture-release/*.zip", "build/symbols-$Architecture-release/*.zip" |
+    Get-ChildItem "build/installer-$Architecture-release/*.zip", "build/symbols-$Architecture-release/*.zip", (Join-Path $evidence 'source.tar.gz') |
         Get-FileHash -Algorithm SHA256 | Format-Table -AutoSize | Out-String -Width 300 |
         Set-Content (Join-Path $evidence 'artifact-sha256.txt') -Encoding utf8
 } finally {
