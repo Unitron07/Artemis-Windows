@@ -28,7 +28,7 @@ The wrapper calls unchanged `scripts/build-arch.bat Release`, which configures q
 
 - `build/installer-x64-release/MoonlightPortable-x64-*.zip`
 - `build/symbols-x64-release/MoonlightDebuggingSymbols-x64-*.zip`
-- `build/evidence/`: build transcript, source/submodule revisions, compiler/SDK information, dependency versions/hashes, artifact hashes, and runner image metadata when available.
+- `build/evidence/`: build transcript, source/submodule revisions, compiler/SDK information, dependency versions/hashes, artifact hashes, runner image metadata when available, and a source archive including recursive submodule contents. Source notices are included in the portable ZIP.
 
 The wrapper unsets `CI_VERSION` while building so upstream includes **portable.dat**. Extract into a separate writable folder and keep that marker. The application is still Moonlight; using non-portable mode may share an installed Moonlight profile. M1 will introduce Artemis identity isolation.
 

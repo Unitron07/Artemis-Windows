@@ -36,6 +36,8 @@ Observed DLL product versions: FFmpeg revision `d32b387` (avcodec/avformat 63.1.
 | Upstream source and recursive submodules retrieved | Pass |
 | Dependency archive downloaded and checksum verified | Pass |
 | New PowerShell scripts parse | Pass |
+| Workflow syntax and expressions | Pass; actionlint 1.7.12 on both new workflows |
+| Application, qmake, native and upstream packaging source unchanged | Pass; empty diff against upstream |
 | Unmodified upstream Windows build | Pending CI |
 | Candidate Windows build and artifacts | Pending CI |
 | Local compile | Not run: Qt/MSVC absent; workspace path also contains spaces |
@@ -43,5 +45,7 @@ Observed DLL product versions: FFmpeg revision `d32b387` (avcodec/avformat 63.1.
 | Sunshine pairing and 1080p60 H.264 SDR with audio/input/gamepad | Not tested; host version not selected |
 | Apollo pairing and the same stream test | Not tested; host version not selected |
 | GPU decoder, performance measurements, Windows 10 minimum build | Not tested |
+
+Import review: [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1). Initial integration commit: `cf43c38fa443316d444c8a71a808acfb5aeac609`; its two parents are the planning and upstream revisions above.
 
 The existing [feature audit](FEATURE_AUDIT.md) is the source-based feature inventory. No performance numbers are claimed. Record hardware, drivers, host versions, stream settings, warm-up, three measured runs, logs, and pass/fail results using [VALIDATION.md](VALIDATION.md). M0 remains open until local and CI builds, clean-machine launch, and independent Sunshine/Apollo streaming checks pass.
