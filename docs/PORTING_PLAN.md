@@ -10,11 +10,11 @@ The original choice to reuse Moonlight's Windows streaming stack is sound. The r
 
 ## Scope and dependency order
 
-M0 (integration merged) → **M0A (native ARM64, next priority)** → M1 → M2 → M3 → M4. M5 release qualification follows the included feature milestones. Server commands (M4) may be deferred from the first preview if their native protocol patch is not ready; document that omission. Clipboard (M3) depends on capability work in M2. M0A build delivery and ARM64 hardware qualification take priority over new desktop features. If hardware access blocks a test, record that blocker explicitly; a cross-build alone does not complete M0A.
+M0 (integration merged) → **M0A (native ARM64, next priority)** → M1 → **M1A (Windows performance/frame pacing)** → M2 → M3 → M4. M5 release qualification follows the included feature milestones. Server commands (M4) may be deferred from the first preview if their native protocol patch is not ready; document that omission. Clipboard (M3) depends on capability work in M2. M0A build delivery and ARM64 hardware qualification take priority over new desktop features. M1A must be measurement-driven: Android/MediaCodec-specific optimizations are not assumed to apply to Windows. If hardware access blocks a test, record that blocker explicitly; a cross-build alone does not complete M0A.
 
 Primary targets: **Windows 11 x64 and native ARM64**, both intended for the first preview. Native ARM64 means the client and its process-loaded runtime DLLs run as ARM64, without x64 emulation; cross-compiling on an x64 build host is acceptable. Windows 10 x64 remains a separate compatibility target pending runtime documentation and real-machine tests. Record exact minimum OS builds before publishing qualified binaries. These are support goals, not claims of completed ARM64 testing.
 
-The first useful preview should preserve Sunshine streaming and add desktop profiles, clearer session actions, and opt-in Apollo text clipboard transfer. The wider roadmap adds virtual-display controls and host commands. Touch overlays, file transfer, simultaneous multiple streams, and a host companion service are outside the first release.
+The first useful preview should preserve Sunshine streaming and add desktop profiles, clearer session actions, and measured Windows-specific presentation/frame-pacing improvements before layering on opt-in Apollo text clipboard transfer. The wider roadmap adds virtual-display controls and host commands. Touch overlays, file transfer, simultaneous multiple streams, and a host companion service are outside the first release.
 
 ## M0 — Establish the Moonlight fork and reproducible baseline
 
@@ -53,7 +53,26 @@ The first useful preview should preserve Sunshine streaming and add desktop prof
 - [ ] Add configurable session shortcuts and distinct actions for disconnecting the client, quitting the remote application, and closing the local app. Preserve a local capture-release shortcut.
 - [ ] Extend existing diagnostics only for missing data; retain upstream stats and avoid adding per-frame logging.
 
-**Exit gate on x64 and ARM64:** profiles survive restart and invalid data fails safely; settings/credentials remain isolated; 20 connect/disconnect cycles leave no stuck input or active extension tasks; disconnect leaves the host application running while an explicitly selected quit action has the documented host effect. M2–M4 changes also retain both architecture builds and run affected checks on each target.
+**Exit gate on x64 and ARM64:** profiles survive restart and invalid data fails safely; settings/credentials remain isolated; 20 connect/disconnect cycles leave no stuck input or active extension tasks; disconnect leaves the host application running while an explicitly selected quit action has the documented host effect. M1A–M4 changes also retain both architecture builds and run affected checks on each target.
+
+## M1A — Windows streaming performance and frame pacing
+
+The goal is not to blindly copy Artemis Android decoder tweaks. Artemis Android and Moonlight Android use Android-specific decoder and presentation paths; Windows uses different hardware decode/render/presentation APIs. Port only platform-neutral ideas that prove beneficial on Windows.
+
+- [ ] Establish repeatable x64 and ARM64 performance comparisons against unmodified Moonlight using the same client hardware, display mode, host, codec, bitrate, frame rate, network path, and workload.
+- [ ] Instrument useful pipeline boundaries such as packet/frame arrival, decode start/finish, presentation-queue entry, present request, and presentation completion. Keep telemetry low-overhead and aggregated; do not enable per-frame logging by default.
+- [ ] Record network variance, decode timing, render/present timing, dropped frames, queue depth, CPU/GPU use, and any trustworthy end-to-end latency observations. Clearly distinguish measured values from estimates.
+- [ ] Audit Artemis Android performance-related changes and classify them as platform-neutral, Android/MediaCodec-specific, device-workaround-specific, or already present in Moonlight PC.
+- [ ] Prototype explicit presentation policies such as **Low Latency**, **Balanced**, and **Smooth**, while preserving an upstream-compatible/default mode. Define each policy by concrete queue/scheduling behavior rather than labels alone.
+- [ ] Prototype a bounded adaptive presentation/jitter queue that can absorb short network/decode timing variance and shrink when conditions improve. Cap queue growth and expose the latency cost rather than silently accumulating delay.
+- [ ] Test stable-LAN and induced-jitter scenarios at representative 60/90/120/144 FPS targets where hardware permits. Compare smoothness, dropped/repeated frames, input feel, and measured latency against unmodified Moonlight.
+- [ ] Investigate VRR-aware presentation on supported Windows displays. Measure DXGI/compositor/fullscreen behavior and frame pacing before enabling a dedicated VRR mode; do not assume VRR automatically lowers latency.
+- [ ] Extend the performance overlay only with Windows counters whose timing boundaries are understood. Useful candidates include network latency/variance, decode time, presentation queue depth, present timing, dropped frames, codec/decoder, and active pacing mode.
+- [ ] Avoid changing networking, decoder selection, or input paths unless measurements identify them as the actual bottleneck. Any default behavior change requires reproducible evidence that it improves a stated metric or pacing condition without unacceptable regressions.
+
+**Exit gate:** at least one representative x64 system and one ARM64 system have reproducible upstream-vs-Artemis traces. Any shipped performance mode improves a stated metric or frame-pacing condition without unacceptable latency, stability, power, or compatibility regressions. Stable-network and jittered-network cases are both tested, and the upstream-compatible mode remains available. If no prototype reliably beats upstream, retain upstream presentation behavior and keep only the useful instrumentation/diagnostics.
+
+**Deliverable:** performance trace format, benchmark procedure, upstream-vs-Artemis results, and only the presentation/pacing modes that survive measurement.
 
 ## M2 — Pointer/scaling correctness and Apollo capability foundation
 
@@ -84,7 +103,7 @@ The first useful preview should preserve Sunshine streaming and add desktop prof
 
 ## M5 — Qualify and release
 
-- [ ] Compare the candidate to unmodified upstream using the same hardware, host, display mode, codec, network, and workload.
+- [ ] Re-run the M1A candidate-to-upstream performance comparison using the same hardware, host, display mode, codec, network, and workload for release candidates.
 - [ ] Complete required [functional and performance checks](VALIDATION.md), including GPU-specific paths available for the claimed support matrix.
 - [ ] Produce separate x64 and native ARM64 portable ZIPs for the first preview, with runtime dependencies, version information, hashes, symbols, notices, and corresponding source including pinned submodule contents. Publish exact build steps and known limitations for each architecture. Do not label an x64-emulated build as the ARM64 release.
 - [ ] Validate ZIP data location, update, and clean-machine launch. Adapt upstream installer infrastructure after the portable preview is stable; test install/upgrade/uninstall and preservation of user data.
@@ -101,7 +120,8 @@ Keep feature PRs small and avoid mass renames of upstream source directories. Re
 - Exact Windows 11 ARM64 minimum build, device/SoC/GPU/driver, and qualification host access: resolve in M0A.
 - Exact Windows 10 x64 minimum build and runtime support: resolve before advertising compatibility.
 - Tested Sunshine/Apollo versions and the original manual test's client/host details: record during M0A; extension-specific support boundaries follow in M2.
+- Default frame-pacing policy and whether adaptive buffering/VRR modes graduate from experimental status: resolve from M1A measurements, not Android behavior alone.
 - Overlay rendering approach: choose only after testing the existing video-window integration and latency impact.
 - Touch-device qualification beyond the baseline keyboard/mouse/gamepad cases remains later work.
 
-Do not attach calendar estimates until the ARM64 baseline and Apollo protocol spikes identify actual effort. The next concrete implementation task is M0A, followed by M1 identity and storage isolation.
+Do not attach calendar estimates until the ARM64 baseline, Windows performance experiments, and Apollo protocol spikes identify actual effort. The next concrete implementation task is M0A, followed by M1 identity and storage isolation, then M1A Windows performance/frame-pacing work.
