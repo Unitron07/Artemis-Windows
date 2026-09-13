@@ -27,7 +27,7 @@ Touch-overlay parity, simultaneous multi-stream viewing, and file transfer are l
 3. [Feature audit](docs/FEATURE_AUDIT.md): pinned sources, existing features, and Apollo protocol findings.
 4. [Validation plan](docs/VALIDATION.md): functional, compatibility, performance, and release checks.
 
-Start implementation with [M0A: native Windows ARM64](docs/NEXT_STEP.md). The current [Windows build instructions](docs/BUILD_WINDOWS.md) and CI cover x64; ARM64 support in the Artemis build harness is planned next. The [M0 report](docs/BASELINE.md) records successful CI and the owner's test confirmation, along with outstanding qualification details. The [upstream README](docs/MOONLIGHT_README.md) is preserved separately.
+Continue [M0A: native Windows ARM64](docs/NEXT_STEP.md). The [Windows build harness](docs/BUILD_WINDOWS.md) accepts x64 and ARM64 targets with pinned dependencies; CI still covers x64. ARM64 compilation, package verification, and device qualification remain next. The [M0 report](docs/BASELINE.md) records successful CI and the owner's test confirmation, along with outstanding qualification details. The [upstream README](docs/MOONLIGHT_README.md) is preserved separately.
 
 ## Licensing and maintenance
 
