@@ -1,6 +1,15 @@
 # Validation and release evidence
 
-These are planned checks. No results have been recorded yet. Attach results to the relevant milestone PR and link them from release notes. A source inspection, CI build, and real hardware test establish different things; record which was performed.
+This is the qualification checklist. The [baseline report](BASELINE.md) records the merged M0 import, successful x64 CI, local upstream CLI startup, and the owner's successful manual test confirmation. Exact client/host details and individual hardware cases remain undocumented. Attach new results to the relevant milestone PR and link them from release notes; distinguish source inspection, builds, general user confirmation, and measured hardware tests.
+
+## Recorded manual test
+
+- Tester: project owner.
+- Result: owner confirmed the tested client works, then merged PR #1.
+- Test date, exact artifact, Windows build, process architecture, GPU/driver, host product/version, stream settings, and individual input/audio cases: not supplied.
+- Scope: successful user-reported baseline test. Do not infer independent Sunshine and Apollo coverage, native ARM64 execution, clean-machine status, hardware decoding, or measured performance from this statement.
+
+Use the result template below to fill those gaps during M0A qualification.
 
 ## Functional checks
 
@@ -33,17 +42,22 @@ Use fixtures/unit tests for permission parsing, profiles/migrations, URL encodin
 
 ## Hardware coverage
 
-Required for the first preview: the baseline H.264 SDR path on at least one recorded x64 Windows 11 client and both recorded host implementations. Retain upstream codec functionality and smoke-test each additional path available on that machine.
+Required for the first preview: the baseline H.264 1080p60 SDR path on at least one recorded Windows 11 x64 client and one real Windows 11 ARM64 client, each tested with separately recorded Sunshine and Apollo hosts. ARM64 qualification is the next milestone, not a post-preview follow-up. Retain upstream codec functionality and smoke-test each additional path available on each machine.
 
 Before claiming broad stable support, test representative Intel, AMD, and NVIDIA clients; hybrid-GPU selection; supported HEVC/AV1/HDR paths; high refresh rate; and office-text quality with YUV 4:4:4 where both ends support it. List each tested GPU, driver, OS build, codec/chroma/HDR mode, and host version. Mark unavailable combinations untested; unsupported codec hardware should produce a clear fallback or error.
 
-Windows 10 and ARM64 need their own declared minimum OS/runtime and hardware qualification. Local multi-monitor behavior does not establish support for simultaneous remote-monitor streams.
+For ARM64, record the device model, SoC/GPU, driver, Windows build, actual process architecture, and decoder in use. Verify PE machine type `ARM64` (`0xAA64`) for the client and shipped native runtime DLLs, including Qt plugins and AntiHooking. Confirm on-device native execution and runtime startup with the deployed dependencies. A successful x64-emulated launch or cross-build is insufficient. Compare performance to unmodified ARM64 Moonlight on the same device, not to unrelated x64 hardware.
+
+Test clean-machine portable launch, discovery/pairing, launch/resume/disconnect, stereo audio, keyboard, direct/relative mouse, gamepad, focus/capture release, DPI changes, sleep/resume, and a 30-minute streaming soak on ARM64. Record unavailable devices or host access as open gates. Test HEVC/AV1/HDR only when supported by the actual device/host combination; record fallback behavior and avoid blanket codec claims.
+
+Windows 10 x64 still needs its own declared minimum OS/runtime and hardware qualification. Local multi-monitor behavior does not establish support for simultaneous remote-monitor streams.
 
 ## Result template
 
 - Date and tester:
 - Upstream SHA / candidate SHA / dependency and submodule manifest:
-- Client OS build, architecture, GPU, driver, display/DPI, power mode:
+- Client device/SoC, OS build, OS and process architecture (including emulation status), GPU, driver, display/DPI, power mode:
+- Runtime PE architecture inventory, Qt/codec versions, and decoder selected:
 - Host product/version, OS, GPU/encoder, virtual-display driver:
 - Network and stream settings:
 - Workload and run duration:
@@ -54,9 +68,11 @@ Windows 10 and ARM64 need their own declared minimum OS/runtime and hardware qua
 
 ## Release checklist
 
-- [ ] M0 build instructions work from a clean checkout.
+- [x] M0 x64 upstream and candidate CI builds pass; see run 34736992552.
+- [ ] Documented builds reproduced locally; M0A ARM64 upstream and candidate CI builds pass.
+- [ ] ARM64 portable package contains native target binaries and runs natively on the recorded ARM64 device.
 - [ ] Functional and regression gates pass for the advertised scope.
-- [ ] Portable build runs with deployed runtimes on a clean machine; data-location behavior is documented.
+- [ ] Separate x64 and ARM64 portable builds run with deployed runtimes on clean machines; data-location behavior is documented for each.
 - [ ] Exact versions, hashes, source, submodule contents, licenses/notices, and symbols are available.
 - [ ] Stable executable/installer signing and installer lifecycle checks pass when those artifacts are offered.
 - [ ] Release notes distinguish tested support, inherited-but-untested paths, deferred features, and known issues.

@@ -1,13 +1,13 @@
 # M0 baseline report and provenance
 
-Prepared September 12, 2026. M0 is **in progress**. This report distinguishes source checks from build and hardware results.
+M0 baseline integration is **merged and accepted as the starting point for further development**. Both Windows x64 CI builds passed and the project owner confirmed that the tested client works. Detailed hardware and interoperability qualification is not yet fully recorded. The next priority is [M0A: native Windows ARM64](NEXT_STEP.md).
 
 ## Imported history
 
 - Planning parent: `Unitron07/Artemis-Windows` at `062306920ffb8b7bec9d07b6eb119401e035a1ea`.
 - Upstream: `https://github.com/moonlight-stream/moonlight-qt.git` at `e3fd29e4d7dc5723d8d0da7d19e2698daec74456`.
-- Integration branch: `codex/m0-moonlight-baseline`. The merge retains both ancestries. Merge this PR with a **merge commit**, not squash/rebase, to retain upstream history in main.
-- The audit snapshot is the initial build candidate, not yet a qualified support baseline. No Android or Apollo implementation is imported.
+- Integration branch: `codex/m0-moonlight-baseline`. [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1) merged into `main` as `cac41f124716aa67b1b16671a03588a480c9dfd0`, retaining both planning and Moonlight ancestries.
+- The audit snapshot is now the imported development baseline. This does not establish a fully qualified release support matrix. No Android or Apollo implementation is imported.
 - Artemis README is retained; the upstream README is preserved as `MOONLIGHT_README.md`. Ignore rules are combined and the obsolete `src/README.md` placeholder is removed. Upstream source directories, platform code, build scripts, licenses, and native gitlinks are preserved.
 
 ## Recursive submodules
@@ -38,14 +38,21 @@ Observed DLL product versions: FFmpeg revision `d32b387` (avcodec/avformat 63.1.
 | New PowerShell scripts parse | Pass |
 | Workflow syntax and expressions | Pass; actionlint 1.7.12 on both new workflows |
 | Application, qmake, native and upstream packaging source unchanged | Pass; empty diff against upstream |
-| Unmodified upstream Windows build | Pending CI |
-| Candidate Windows build and artifacts | Pending CI |
+| Deployed upstream CLI startup on the local Windows machine | Pass; portable `Moonlight.exe --help` exited 0, using packaged Qt/runtime DLLs |
+| Unmodified upstream Windows x64 build | Pass; [run 34736992552](https://github.com/Unitron07/Artemis-Windows/actions/runs/34736992552), portable ZIP and symbols uploaded |
+| Candidate Windows x64 build and artifacts | Pass; same run, portable ZIP and symbols uploaded; PR head `eef602e793ae72122d21305d1128d5e7daafa25f` |
+| Owner's manual baseline test | Owner reported success before merging PR #1; exact client, host versions, and individual cases were not supplied |
+| Native ARM64 build and hardware validation | Not yet performed; prioritized in M0A |
 | Local compile | Not run: Qt/MSVC absent |
-| Clean-machine portable launch | Not tested |
-| Sunshine pairing and 1080p60 H.264 SDR with audio/input/gamepad | Not tested; host version not selected |
-| Apollo pairing and the same stream test | Not tested; host version not selected |
-| GPU decoder, performance measurements, Windows 10 minimum build | Not tested |
+| Clean-machine portable launch | No separate clean-machine evidence recorded |
+| Sunshine pairing and 1080p60 H.264 SDR with audio/input/gamepad | Per-case results and host version not recorded |
+| Apollo pairing and the same stream test | Per-case results and host version not recorded |
+| GPU decoder, performance measurements, Windows 10 minimum build | No qualification evidence recorded |
 
 Import review: [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1). Initial integration commit: `cf43c38fa443316d444c8a71a808acfb5aeac609`; its two parents are the planning and upstream revisions above.
 
-The existing [feature audit](FEATURE_AUDIT.md) is the source-based feature inventory. No performance numbers are claimed. Record hardware, drivers, host versions, stream settings, warm-up, three measured runs, logs, and pass/fail results using [VALIDATION.md](VALIDATION.md). M0 remains open until local and CI builds, clean-machine launch, and independent Sunshine/Apollo streaming checks pass.
+The first upstream CI job successfully built and packaged Moonlight 6.1.0. Its portable ZIP was downloaded, verified against the artifact hash report (`52ba768f0ea6351a7282e332d49146d9f752f2392b66483bdf1e7f7f79b7b9d6`), and smoke-tested locally with `--help`. `portable.dat` and source notices are present. The source archive includes nested submodule files and excludes Git metadata, downloaded libraries, and generated build outputs. An evidence-only quoting bug found in that run was fixed in `eef602e793ae72122d21305d1128d5e7daafa25f`; the corrected upstream and candidate jobs then passed in run `34736992552`. CLI startup is not GUI or streaming qualification.
+
+The project owner's statement, "i have confirmed it works", is recorded as a successful manual baseline test, not as evidence that every release-checklist case or both host products were exercised. The owner subsequently merged PR #1. The historical M0 qualification gate is therefore only partly evidenced; its remaining local-build, clean-machine, host-version, decoder, and performance records carry forward into M0A/M5 rather than holding the completed source import open.
+
+The [feature audit](FEATURE_AUDIT.md) remains the source-based feature inventory. No performance numbers are claimed. Use [VALIDATION.md](VALIDATION.md) to record the actual client architecture, hardware, drivers, host versions, stream settings, and results for both x64 and ARM64. Broad support claims remain gated on those results.

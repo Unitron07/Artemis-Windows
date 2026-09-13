@@ -1,6 +1,6 @@
-# Windows x64 baseline build
+# Windows baseline builds
 
-This imports Moonlight PC at `e3fd29e4d7dc5723d8d0da7d19e2698daec74456`. Build and qualify this baseline before adding Artemis behavior. The executable still identifies itself as Moonlight.
+Moonlight PC at `e3fd29e4d7dc5723d8d0da7d19e2698daec74456` was imported through PR #1 and merged into `main`. The executable still identifies itself as Moonlight. The commands below describe the existing, CI-validated **x64** harness. Native ARM64 is the next priority; its implementation checklist follows below.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ This imports Moonlight PC at `e3fd29e4d7dc5723d8d0da7d19e2698daec74456`. Build a
 Run in PowerShell, substituting the reviewed branch or commit when appropriate:
 
 ```powershell
-git clone --recursive --branch codex/m0-moonlight-baseline https://github.com/Unitron07/Artemis-Windows.git C:\src\Artemis
+git clone --recursive --branch main https://github.com/Unitron07/Artemis-Windows.git C:\src\Artemis
 Set-Location C:\src\Artemis
 git remote add upstream https://github.com/moonlight-stream/moonlight-qt.git
 $env:PATH = 'C:\Qt\6.11.2\msvc2022_64\bin;C:\Program Files\7-Zip;' + $env:PATH
@@ -46,8 +46,18 @@ C:\src\Artemis\scripts\build-baseline.ps1 -SourceRoot C:\src\MoonlightBaseline
 
 Both source trees use the same external dependency/build harness. No application, qmake, native-library, or upstream packaging changes are applied for this import.
 
+## Native ARM64: next implementation target
+
+The current Artemis wrappers hard-code x64: `baseline-deps.json` selects the x64 archive, `build-baseline.ps1` captures an AMD64 toolchain and x64 outputs, and the active workflow installs only the x64 Qt kit. Passing an ARM64 argument to these wrappers is not supported yet. The retained upstream `build-arch.bat` and `build-win-mac.yml` contain ARM64 integration to reuse in [M0A](NEXT_STEP.md).
+
+M0A will use the pinned upstream Qt `win64_msvc2022_arm64_cross_compiled` kit (target directory `msvc2022_arm64`) with its x64 host tools, the corresponding MSVC cross compiler, and the Windows ARM64 dependency archive. Native refers to the resulting ARM64 application and runtime; the compiler can run on x64. Verify the selected toolchain and each deployed binary's architecture, not only the kit or filename.
+
+Keep separate target dependency roots, build outputs, ZIP names, symbols, and evidence. Architecture-specific results must include source/submodule revisions, Qt/SDK/compiler versions, verified archive hashes, and a PE architecture inventory of the deployed runtime. Publish working ARM64 commands here only after the new harness is tested; until then, use the [next-step specification](NEXT_STEP.md) for implementation.
+
 ## CI and qualification
 
 `Windows baseline` runs on main and `codex/**` pushes, PRs targeting main, and manual dispatch. The upstream job must pass before the candidate starts. Both use recursive checkout and the same pinned Qt/dependency/action inputs. Existing non-Windows reusable workflows remain in the tree for upstream maintenance but are not invoked by this Windows workflow. Tokens are read-only and checkout credentials are not persisted. Logs upload even when the build fails.
 
-Hosted builds do not validate GPU decoding, pairing, performance, or OS compatibility. Complete the [baseline report](BASELINE.md) and [validation checklist](VALIDATION.md) on a clean Windows machine against separately recorded Sunshine and Apollo versions. These CI packages are development evidence, not a qualified Artemis release. Windows 10 minimum build and ARM64 qualification remain unresolved.
+The x64 upstream and candidate builds passed in [run 34736992552](https://github.com/Unitron07/Artemis-Windows/actions/runs/34736992552). The owner reported a successful manual test before merging PR #1; detailed client/host records remain in the qualification backlog.
+
+Hosted builds do not validate GPU decoding, pairing, performance, or OS compatibility. Complete the [baseline report](BASELINE.md) and [validation checklist](VALIDATION.md) on real x64 and ARM64 Windows machines against separately recorded Sunshine and Apollo versions. These CI packages are development evidence, not a qualified Artemis release. ARM64 qualification is part of M0A and the first-preview scope; Windows 10 x64 compatibility remains separate.

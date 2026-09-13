@@ -1,6 +1,6 @@
 # Source audit and feature matrix
 
-Reviewed September 12, 2026. Findings below come from source inspection, not a successful build, performance measurement, or host interoperability test.
+Source review: September 12, 2026. Findings below describe the inspected snapshots. Subsequent x64 builds passed and the owner confirmed the client works; those results and their limits are recorded in [BASELINE.md](BASELINE.md). Native Windows ARM64 is now the next priority in [M0A](NEXT_STEP.md).
 
 ## Comparison snapshots
 
@@ -67,9 +67,9 @@ The inspected PC core header has no `LiSendExecServerCmd` API [S10]. Port the sm
 
 ## Build findings
 
-The inspected PC branch uses Qt/QML and qmake projects. Its Windows workflow selects Qt 6.11.2, the `windows-2025` runner, and MSVC-named Qt kits, including an ARM64 cross-compiled kit. Its README names Visual Studio 2026, while the kit paths retain `msvc2022` naming. These labels should be reconciled by recording the actual compiler selected by the build script, rather than copying an assumed toolchain version into this project [S3, S11].
+The inspected PC branch uses Qt/QML and qmake projects. Its Windows workflow selects Qt 6.11.2, the `windows-2025` runner, and MSVC-named Qt kits, including an ARM64 cross-compiled kit. Its README names Visual Studio 2026, while the kit paths retain `msvc2022` naming [S3, S11]. M0's x64 build evidence records the actual selected Visual Studio/SDK/compiler; do the same for the ARM64 cross toolchain in M0A. The current Artemis CI invokes only its x64 harness despite retaining upstream ARM64-capable source and workflows.
 
-`setup-deps.ps1` currently downloads the `v15` Windows dependency archives. Capture their hashes and shipped library versions during M0. The input code contains SDL2 and sdl2-compat/SDL3 handling, so record the actual deployed runtime; avoid a blanket SDL-major-version assumption [S4, S12]. Existing Windows build scripts already package portable artifacts and installer components [S13].
+Upstream `setup-deps.ps1` downloads the `v15` Windows dependency archives. M0 pins and verifies the x64 archive; pin and independently verify the ARM64 archive in M0A. The input code contains SDL2 and sdl2-compat/SDL3 handling, so record the actual deployed runtime for each architecture; avoid a blanket SDL-major-version assumption [S4, S12]. Existing Windows build scripts already package portable artifacts and installer components [S13].
 
 ## Sources
 
