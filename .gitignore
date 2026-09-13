@@ -27,3 +27,8 @@ Release/
 .codex/
 .DS_Store
 Thumbs.db
+
+# Moonlight upstream dependencies and generated configure files
+.vscode/
+libs/
+config.tests/*/Makefile
