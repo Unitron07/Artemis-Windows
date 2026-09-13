@@ -40,7 +40,7 @@ Observed DLL product versions: FFmpeg revision `d32b387` (avcodec/avformat 63.1.
 | Application, qmake, native and upstream packaging source unchanged | Pass; empty diff against upstream |
 | Unmodified upstream Windows build | Pending CI |
 | Candidate Windows build and artifacts | Pending CI |
-| Local compile | Not run: Qt/MSVC absent; workspace path also contains spaces |
+| Local compile | Not run: Qt/MSVC absent |
 | Clean-machine portable launch | Not tested |
 | Sunshine pairing and 1080p60 H.264 SDR with audio/input/gamepad | Not tested; host version not selected |
 | Apollo pairing and the same stream test | Not tested; host version not selected |

@@ -35,7 +35,24 @@ try {
     if (!$vsPath) { throw 'No Visual Studio installation found' }
     $vcvars = Join-Path $vsPath 'VC/Auxiliary/Build/vcvarsall.bat'
     & $vswherePath -latest -format json | Set-Content (Join-Path $evidence 'visual-studio.json') -Encoding utf8
-    cmd /d /c "`"`"$vcvars`" AMD64 && cl /Bv 2>&1 & set WindowsSDK & set VCToolsVersion`"" | Out-Host
+    # A batch file avoids PowerShell/cmd double-quoting of Program Files paths.
+    @"
+@echo off
+call "$vcvars" AMD64
+if errorlevel 1 exit /b 1
+where cl
+if errorlevel 1 exit /b 1
+cl /Bv > build\evidence\compiler.txt 2>&1
+rem cl /Bv without a source file reports a usage error after its version banner.
+if not defined WindowsSDKVersion exit /b 1
+if not defined VCToolsVersion exit /b 1
+set WindowsSDK > build\evidence\sdk.txt
+set VCToolsVersion >> build\evidence\sdk.txt
+exit /b 0
+"@ | Set-Content (Join-Path $evidence 'capture-toolchain.cmd') -Encoding ascii
+    cmd /d /c build\evidence\capture-toolchain.cmd
+    if ($LASTEXITCODE -ne 0) { throw 'Unable to capture compiler and SDK versions' }
+    Get-Content (Join-Path $evidence 'compiler.txt'), (Join-Path $evidence 'sdk.txt') | Out-Host
     # With CI_VERSION unset upstream creates portable.dat, keeping this test
     # build's settings separate from an installed Moonlight user profile.
     $savedVersion = $env:CI_VERSION
