@@ -23,7 +23,7 @@ function Assert-BaselineDependencies {
 function Resolve-BaselineQt {
     param([string]$Architecture, [string]$QtBin)
     if (!$QtBin) {
-        $candidates = @(Get-Command qmake.exe, qmake.bat -All -ErrorAction SilentlyContinue |
+        $candidates = @(Get-Command qmake.exe, qmake.bat, host-qmake.bat -All -ErrorAction SilentlyContinue |
             ForEach-Object { Split-Path $_.Source -Parent } | Sort-Object -Unique)
         if ($candidates.Count -ne 1) { throw 'Specify -QtBin explicitly when PATH has zero or multiple Qt kits.' }
         $QtBin = $candidates[0]
@@ -34,9 +34,7 @@ function Resolve-BaselineQt {
     if ((Split-Path $QtBin -Leaf) -ne 'bin' -or (Split-Path (Split-Path $QtBin -Parent) -Leaf) -ne $kit) {
         throw "The $Architecture target requires the $kit/bin Qt kit."
     }
-    if (!(Test-Path (Join-Path $QtBin 'qmake.exe')) -and !(Test-Path (Join-Path $QtBin 'qmake.bat'))) {
-        throw 'Selected target kit has no qmake executable or forwarder.'
-    }
+    Resolve-BaselineQmake -QtBin $QtBin | Out-Null
     if ($Architecture -eq 'arm64') {
         $hostBin = Join-Path (Split-Path (Split-Path $QtBin -Parent) -Parent) 'msvc2022_64/bin'
         foreach ($tool in @('qmake.exe', 'windeployqt.exe')) {
@@ -44,4 +42,15 @@ function Resolve-BaselineQt {
         }
     }
     return $QtBin
+}
+
+# Match upstream build-arch.bat: the ARM64 kit may contain an ARM64
+# qmake.exe alongside a host-qmake.bat cross-compilation forwarder.
+function Resolve-BaselineQmake {
+    param([string]$QtBin)
+    foreach ($name in @('qmake.bat', 'host-qmake.bat', 'qmake.exe')) {
+        $candidate = Join-Path $QtBin $name
+        if (Test-Path -LiteralPath $candidate) { return $candidate }
+    }
+    throw 'Selected target kit has no qmake executable or forwarder.'
 }

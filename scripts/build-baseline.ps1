@@ -48,9 +48,10 @@ try {
         runnerImageOS = $env:ImageOS
     } | ConvertTo-Json | Set-Content (Join-Path $evidence 'build.json') -Encoding utf8
     foreach ($tool in @('qmake', '7z')) { Get-Command $tool -ErrorAction Stop | Out-Host }
-    qmake -query
+    $qmakeCommand = Resolve-BaselineQmake -QtBin $QtBin
+    & $qmakeCommand -query
     if ($LASTEXITCODE -ne 0) { throw 'qmake failed' }
-    $qtVersion = qmake -query QT_VERSION
+    $qtVersion = & $qmakeCommand -query QT_VERSION
     if ($LASTEXITCODE -ne 0 -or $qtVersion.Trim() -ne '6.11.2') { throw 'Qt 6.11.2 is required' }
     if ($Architecture -eq 'arm64') {
         $hostBin = Join-Path (Split-Path (Split-Path $QtBin -Parent) -Parent) 'msvc2022_64/bin'
