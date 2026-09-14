@@ -117,7 +117,7 @@ Development baseline from https://github.com/moonlight-stream/moonlight-qt at $s
 Source snapshot including pinned submodules is in the accompanying evidence artifact.
 Dependency source/build recipes: https://github.com/moonlight-stream/moonlight-qt-deps/tree/2ab26b8cd5c42899ffd97c573ff2c678738f41b1
 Qt source archives: https://download.qt.io/archive/qt/6.11/6.11.2/submodules/
-This unsigned Moonlight baseline is not a qualified Artemis release.
+This unsigned development baseline is not a qualified Asteria release.
 "@ | Set-Content (Join-Path $notices 'PROVENANCE.txt') -Encoding utf8
     Copy-Item (Join-Path $PSScriptRoot '../docs/DEPENDENCIES_WINDOWS.md') $notices
     $package = @(Get-ChildItem "build/installer-$Architecture-release/*.zip")
@@ -131,9 +131,11 @@ This unsigned Moonlight baseline is not a qualified Artemis release.
             -ReportPath (Join-Path $evidence 'arm64-runtime-cleanup.json')
     }
     # Inspect the final ZIP, including nested Qt plugins, before any artifact upload.
+    $clientExecutable = if ($sha -eq 'e3fd29e4d7dc5723d8d0da7d19e2698daec74456') { 'Moonlight.exe' } else { 'Asteria.exe' }
     & (Join-Path $PSScriptRoot 'test-package-architecture.ps1') `
         -PackagePath $package[0].FullName -Architecture $Architecture `
-        -ReportPath (Join-Path $evidence 'package-architecture.json')
+        -ReportPath (Join-Path $evidence 'package-architecture.json') `
+        -ClientExecutable $clientExecutable
     tar -czf (Join-Path $evidence 'source.tar.gz') --exclude=.git --exclude=./build --exclude=./libs -C $SourceRoot .
     if ($LASTEXITCODE -ne 0) { throw 'Unable to archive source and submodules' }
     Get-ChildItem "build/installer-$Architecture-release/*.zip", "build/symbols-$Architecture-release/*.zip", (Join-Path $evidence 'source.tar.gz') |
