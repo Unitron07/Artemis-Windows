@@ -4,13 +4,13 @@
 
 Use Moonlight PC as the application, retaining its source history and layout. Do not build a second Windows shell or extract its streaming internals into a new framework for the first release. This follows the project owner's September 12, 2026 direction.
 
-The [audit](FEATURE_AUDIT.md) pins the reviewed code. M0 integration is merged, x64 CI passed, and the owner confirmed the tested client works; see [BASELINE.md](BASELINE.md) for the evidence and remaining qualification records. Native Windows ARM64 is the next implementation priority, before M1 desktop features.
+The [audit](FEATURE_AUDIT.md) pins the reviewed code. M0 integration is merged, x64 CI passed, and the owner confirmed the tested client works; see [BASELINE.md](BASELINE.md) for the evidence and remaining qualification records. Native x64/ARM64 builds and packaging pass CI, and the Asteria identity is implemented. Real Windows 11 ARM64 qualification is the next gate before the first portable preview. The extension architecture below describes planned work.
 
 ## Native Windows targets
 
 Use the same Qt/QML/C++ application and streaming stack for x64 and ARM64. Compile the client and every process-loaded runtime dependency for the target architecture. An x64 executable running under Windows emulation does not meet the native ARM64 goal. Cross-compilation from an x64 build host is acceptable; host-side Qt tools must not be deployed as ARM64 runtime dependencies.
 
-Reuse upstream's ARM64 Qt/MSVC/qmake and packaging paths. Keep architecture-specific dependency manifests, output directories, symbols, and runtime PE verification while sharing feature implementation. Qualify hardware decoding, input, display behavior, and performance on actual Windows 11 ARM64 hardware. M0A owns the build and device baseline; subsequent identity, profiles, and Apollo work must preserve both targets. No Windows UI framework rewrite is required for native ARM64.
+Reuse upstream's ARM64 Qt/MSVC/qmake and packaging paths. Keep architecture-specific dependency manifests, output directories, symbols, and runtime PE verification while sharing feature implementation. Qualify hardware decoding, input, display behavior, and performance on actual Windows 11 ARM64 hardware. M0A owns the build and device baseline; subsequent profiles and Apollo work must preserve both targets. No Windows UI framework rewrite is required for native ARM64.
 
 ## Integration points
 
@@ -23,7 +23,7 @@ Reuse upstream's ARM64 Qt/MSVC/qmake and packaging paths. Keep architecture-spec
 | Input | `app/streaming/input/` | Extend existing capture, direct-pointer, and shortcut paths |
 | Decode/render | Existing `app/streaming/` implementation | Preserve; modify only for a demonstrated feature gap |
 | Native protocol | `moonlight-common-c/moonlight-common-c/` | Keep the upstream pin initially; later add a minimal reviewed server-command extension |
-| Build/package | `moonlight-qt.pro`, `app/app.pro`, `scripts/`, `wix/` | Adapt upstream identity and packaging incrementally |
+| Build/package | `moonlight-qt.pro`, `app/app.pro`, `scripts/`, `wix/` | Asteria identity implemented; qualify portable packages before installer distribution |
 
 New extension classes belong beside the existing backend/session code. Class names and exact filenames can be chosen during implementation; these are responsibilities, not a demand for a new service framework.
 
@@ -39,7 +39,7 @@ New extension classes belong beside the existing backend/session code. Class nam
 
 **Input and presentation:** retain upstream SDL routing rather than running a competing XInput/raw-input pipeline. Session shortcut configuration needs conflict detection and a reliable local capture-release action. Release pressed keys/buttons on focus loss and disconnect. Fit/fill/stretch or pan/zoom changes must share a coordinate transform with direct-pointer mapping. Prefer the existing rendering path; prototype and benchmark any overlay integration before depending on a QML overlay over the video window.
 
-**Settings and identity:** give Artemis its own app name/ID, data directory, certificates, host IDs, package identifiers, and uninstall behavior. Test coexistence with Moonlight. Do not silently copy pairing credentials. Profiles use stable host/app identifiers and explicit precedence: global defaults, host profile, app override, session-only override. Version the schema and preserve recoverable settings when migration fails. Verify whether upstream portable mode meets the intended data-location contract before promising a self-contained ZIP.
+**Settings and identity:** Asteria's separate app/settings/pairing/log/package identity is implemented. Qualify data-location and installer lifecycle behavior for the artifacts offered. Test coexistence with Moonlight. Do not silently copy pairing credentials. Profiles use stable host/app identifiers and explicit precedence: global defaults, host profile, app override, session-only override. Version the schema and preserve recoverable settings when migration fails. Verify whether upstream portable mode meets the intended data-location contract before promising a self-contained ZIP.
 
 ## Dependency policy
 

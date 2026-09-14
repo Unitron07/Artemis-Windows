@@ -1,38 +1,35 @@
-# Next implementation: M0A native Windows ARM64
+# Next step: qualify the first portable preview
 
-Priority: immediate, before M1 identity/profiles/session features. The owner requested native ARM64 as a priority after accepting and merging the x64 baseline. Windows 11 x64 and native ARM64 are both intended for the first preview.
+Asteria identity/rebranding and native x64/ARM64 build and packaging work are implemented. The next gate is real Windows 11 ARM64 device qualification, followed by x64 smoke testing from the same release commit. Profiles, new session workflows, performance changes, and Apollo extensions remain roadmap work and are not required for this first preview.
 
-Track implementation and device evidence in [GitHub issue #3](https://github.com/Unitron07/Artemis-Windows/issues/3).
+Track device evidence in [GitHub issue #3](https://github.com/Unitron07/Asteria-Windows/issues/3).
 
-## Starting point
+## Implemented baseline
 
-Start a new implementation branch from current `main`, which contains the history-preserving M0 merge (`cac41f124716aa67b1b16671a03588a480c9dfd0`). Preserve any newer main commits. [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1) is merged; [x64 CI](https://github.com/Unitron07/Artemis-Windows/actions/runs/34736992552) passed for both unmodified upstream and the candidate. The owner reported that the tested client works. See [BASELINE.md](BASELINE.md) for qualification gaps rather than assuming that test covered ARM64 or both host products.
+- M0 preserves Moonlight PC source history, notices, licenses, and submodules.
+- PRs #5 and #6 established x64/ARM64 target selection, pinned dependencies, and upstream/candidate CI.
+- PR #8 corrected ARM64 portable-package CRT contamination; the final ZIP architecture gate checks all packaged EXE/DLL files, including Qt plugins.
+- PR #9 implemented Asteria application, settings, pairing, logs, artwork, and Windows package identity.
+- All four upstream/candidate x64/ARM64 jobs passed in [run 34797782854](https://github.com/Unitron07/Asteria-Windows/actions/runs/34797782854) at `ab69dc3f76ff6b163ab91c35c3795d4da478f022`, including final-ZIP architecture validation.
 
-The executable still identifies as Moonlight. M0A keeps this baseline while adding an ARM64 build of the existing application. Native ARM64 means an ARM64 client/runtime, without x64 emulation. It does not require a different Windows UI framework; x64-hosted cross-compilation is acceptable.
+See [BUILD_WINDOWS.md](BUILD_WINDOWS.md) for commands and [BASELINE.md](BASELINE.md) for evidence limits. CI does not establish native device execution or streaming compatibility.
 
-## Implementation scope
+## Remaining preview qualification
 
-Build target selection, pinned dependencies, and x64/ARM64 upstream/candidate CI are implemented in merged PRs #5 and #6. All four jobs passed in [run 34790903403](https://github.com/Unitron07/Artemis-Windows/actions/runs/34790903403) at `be43f5d6fe692b0884ec8cdb2486f8457f4fdd7d`. Use separate x64/ARM64 checkouts to isolate upstream's shared dependency headers.
+Use the [validation checklist and result template](VALIDATION.md) to record:
 
-The harness now validates every EXE/DLL in the final portable ZIP with `scripts/test-package-architecture.ps1`, before uploads. It records the package SHA-256, expected/observed machine types, and failures in `package-architecture.json`. Local synthetic package tests cover both targets, nested plugins, foreign architectures, malformed headers, and missing client/runtime files. Hosted validation of this new gate remains pending; the earlier green run did not execute it. The next qualification task is testing the resulting package on real ARM64 hardware.
+- Exact candidate commit, portable ZIP hash, and matching package-architecture report.
+- Windows 11 ARM64 device/SoC/GPU, driver, OS build, native process architecture, and selected decoder; launch without development tools or x64 emulation.
+- Discovery/manual host, pair/unpair, launch/resume/disconnect/quit, H.264 1080p60 SDR, audio, keyboard, relative/direct mouse, gamepad, focus/capture release, DPI changes, sleep/resume, and a 30-minute soak.
+- Separate Sunshine and Apollo host versions and standard-streaming results. This does not qualify Apollo-specific extensions.
+- Available HEVC/AV1/HDR paths and fallback behavior; mark unsupported or untested paths explicitly.
+- Settings persistence, portable data location, and side-by-side use with Moonlight.
+- A same-device upstream ARM64 comparison and an x64 smoke test from the same release commit.
 
-| Area | Starting files | Required change |
-| --- | --- | --- |
-| Dependency inputs | `scripts/baseline-deps.json`, `scripts/setup-baseline-deps.ps1`, upstream `setup-deps.ps1` | Select x64 or ARM64 explicitly, pin the matching archive and checksum, inventory versions/licenses, and prevent mixing target dependencies |
-| Build and evidence | `scripts/build-baseline.ps1`, upstream `scripts/build-arch.bat` | Select the correct target Qt kit/MSVC tools; make output and evidence paths architecture-specific; preserve x64 commands |
-| Windows CI | `.github/workflows/build.yml`, `.github/workflows/build-windows-baseline.yml`, upstream reference `.github/workflows/build-win-mac.yml` | Build upstream then candidate for each architecture, with recursive submodules, pinned inputs and separate packages/symbols/evidence |
-| Native package validation | Deployed executable, AntiHooking, Qt plugins, SDL and codec DLLs | Check PE machine types and reject x64 runtime files in the ARM64 package; keep host build tools separate |
-| Documentation | `docs/BUILD_WINDOWS.md`, `docs/BASELINE.md`, `docs/VALIDATION.md` | Publish verified ARM64 commands, artifact links, compiler/SDK/dependency inputs and honest device results |
+Missing hardware or host access remains an open gate. Do not mark M0A complete solely because CI passes.
 
-Reuse the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tooling. Resolve compatibility using build evidence; do not infer compiler versions from the kit's `msvc2022` label. Keep architecture-specific dependency and output directories so sequential local builds cannot reuse the wrong runtime files.
+## Release wording after testing
 
-## Acceptance criteria
+Once the ARM64 test passes, replace “pending real Windows 11 ARM64 device qualification” with a statement tied to the recorded device, Windows build, host versions, and tested paths. Update README, BASELINE, PORTING_PLAN, and VALIDATION together and link the hardware report from release notes. Preserve untested limitations.
 
-- Fresh recursive checkouts build both unmodified upstream and the ARM64 candidate in Windows CI; x64 builds remain green.
-- Portable ZIPs, symbols, source with pinned submodules, licenses, hashes, and toolchain/dependency evidence are separately identifiable by target architecture.
-- A package check verifies ARM64 PE machine type for the client and all shipped native process-loaded DLLs, including Qt plugins; it rejects a deliberately introduced x64 DLL.
-- The packaged executable starts natively on a recorded Windows 11 ARM64 device without development tools. Architecture evidence and actual decoder selection are captured.
-- H.264 1080p60 SDR pairing/streaming with audio, keyboard, mouse and gamepad passes against recorded Sunshine and Apollo versions. Record available codec paths, sleep/resume, display/input behavior, and the soak test from [VALIDATION.md](VALIDATION.md).
-- An ARM64 performance baseline uses unmodified ARM64 Moonlight on the same hardware and inputs. Missing hardware, host access, or untested codecs remain explicit open gates.
-
-The next deliverable is a real-device qualification report linked to a package that passed the new architecture gate. Record Windows build, device/SoC/GPU/driver, native process architecture, decoder, separate Sunshine/Apollo versions, streaming/input results, sleep/resume, soak testing, and same-device upstream performance comparisons. Do not mark M0A complete merely because CI passes; attach real-device results before claiming native ARM64 qualification. After M0A, begin M1 by isolating Artemis names, settings, pairing credentials, logs, update identity, and installer identifiers on both targets, then add profiles and session actions.
+Publish separate x64 and ARM64 portable preview ZIPs with exact versions, hashes, symbols, corresponding source/submodules, notices, and known issues. Installer distribution/signing and new Asteria-specific features follow later qualification.

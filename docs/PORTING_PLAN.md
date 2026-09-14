@@ -1,24 +1,24 @@
 # Porting plan
 
-Updated after the M0 merge and the owner's request to prioritize native Windows ARM64. Completed integration items are checked below; build and test evidence lives in [BASELINE.md](BASELINE.md).
+Updated for the first portable preview: Asteria identity and x64/ARM64 CI packaging are implemented; real Windows 11 ARM64 device qualification remains pending. Completed integration items are checked below; build and test evidence lives in [BASELINE.md](BASELINE.md).
 
 ## Review outcome
 
 The original choice to reuse Moonlight's Windows streaming stack is sound. The revised plan makes the fork decision explicit, removes a redundant new application shell, separates existing upstream features from porting work, and gives every milestone an observable completion gate.
 
-**Chosen approach: extend the merged Moonlight PC fork, establish native Windows x64 and ARM64 baselines, then add missing Artemis features incrementally.** Preserve upstream history and layout. See [the feature audit](FEATURE_AUDIT.md) and [architecture](ARCHITECTURE.md).
+**Chosen approach: extend the merged Moonlight PC fork, establish native Windows x64 and ARM64 baselines, then add selected Artemis-inspired features incrementally.** Preserve upstream history and layout. See [the feature audit](FEATURE_AUDIT.md) and [architecture](ARCHITECTURE.md).
 
 ## Scope and dependency order
 
-M0 (integration merged) → **M0A (native ARM64, next priority)** → M1 → **M1A (Windows performance/frame pacing)** → M2 → M3 → M4. M5 release qualification follows the included feature milestones. Server commands (M4) may be deferred from the first preview if their native protocol patch is not ready; document that omission. Clipboard (M3) depends on capability work in M2. M0A build delivery and ARM64 hardware qualification take priority over new desktop features. M1A must be measurement-driven: Android/MediaCodec-specific optimizations are not assumed to apply to Windows. If hardware access blocks a test, record that blocker explicitly; a cross-build alone does not complete M0A.
+M0 is merged. M0A build and packaging work passes CI; real-device qualification remains open. M1 identity is implemented, while its profiles/session work and M1A–M4 remain planned. Apply M5 qualification to the initial preview's inherited streaming and identity scope; later feature milestones are not prerequisites for that preview. Clipboard (M3) depends on capability work in M2. Performance changes must follow measurements, and a cross-build alone does not complete M0A.
 
 Primary targets: **Windows 11 x64 and native ARM64**, both intended for the first preview. Native ARM64 means the client and its process-loaded runtime DLLs run as ARM64, without x64 emulation; cross-compiling on an x64 build host is acceptable. Windows 10 x64 remains a separate compatibility target pending runtime documentation and real-machine tests. Record exact minimum OS builds before publishing qualified binaries. These are support goals, not claims of completed ARM64 testing.
 
-The first useful preview should preserve Sunshine streaming and add desktop profiles, clearer session actions, and measured Windows-specific presentation/frame-pacing improvements before layering on opt-in Apollo text clipboard transfer. The wider roadmap adds virtual-display controls and host commands. Touch overlays, file transfer, simultaneous multiple streams, and a host companion service are outside the first release.
+The first public preview covers inherited Moonlight streaming and the implemented Asteria identity, delivered as x64 and native ARM64 portable ZIPs after hardware qualification. Desktop profiles, additional session actions, measured frame-pacing changes, Apollo clipboard, virtual-display controls, and host commands remain later roadmap work. Touch overlays, file transfer, simultaneous multiple streams, and a host companion service are outside the first release.
 
 ## M0 — Establish the Moonlight fork and reproducible baseline
 
-**Status:** integration merged in [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1); x64 CI passed and the owner reported a successful manual test. Detailed qualification records remain outstanding as listed in the [baseline report](BASELINE.md).
+**Status:** integration merged in [PR #1](https://github.com/Unitron07/Asteria-Windows/pull/1); x64 CI passed and the owner reported a successful manual test. Detailed qualification records remain outstanding as listed in the [baseline report](BASELINE.md).
 
 - [x] Preserve the planning repository and Moonlight source history in a reviewed merge, retaining docs and resolving README/layout conflicts explicitly.
 - [x] Record an `upstream` remote, baseline SHA, recursive submodule SHAs, source licenses, and imported-code provenance.
@@ -31,14 +31,14 @@ The first useful preview should preserve Sunshine streaming and add desktop prof
 
 **Deliverable:** baseline import PR, build instructions, CI artifact, and baseline report. No client feature rewrite is needed here.
 
-## M0A — Native Windows ARM64 baseline (next priority)
+## M0A — Native Windows ARM64 baseline (device qualification pending)
 
 - [x] Extend the existing build harness to accept explicit x64/ARM64 targets, preserving upstream source layout and the default x64 command. Dependency/preflight tests pass.
 - [x] Use the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tools. Keep host-side Qt build tools distinct from deployed ARM64 runtime files. Implemented in PR #6 and exercised by successful ARM64 CI.
 - [x] Pin and verify the v15 Windows ARM64 dependency archive; record versions, hashes and source/license locations in [dependency notes](DEPENDENCIES_WINDOWS.md). Isolate dependencies with one target per checkout and architecture-specific output/evidence folders.
-- [x] Build both unmodified upstream and the candidate for ARM64 in Windows CI. Keep x64 coverage; publish separate portable ZIPs, symbols, source, and compiler/SDK/dependency evidence for each architecture. All four jobs passed in [run 34790903403](https://github.com/Unitron07/Artemis-Windows/actions/runs/34790903403); PR #6 is merged.
+- [x] Build both unmodified upstream and the candidate for ARM64 in Windows CI. Keep x64 coverage; publish separate portable ZIPs, symbols, source, and compiler/SDK/dependency evidence for each architecture. All four jobs passed in [run 34790903403](https://github.com/Unitron07/Asteria-Windows/actions/runs/34790903403); PR #6 is merged.
 - [x] Implement final-ZIP PE machine validation for every EXE/DLL, including nested Qt plugins, SDL, codecs, and AntiHooking, with a hash-bound evidence report. Local tests reject x64 DLL contamination in ARM64 packages and the reverse. Host build tools outside the ZIP are not scanned.
-- [ ] Confirm the new package gate passes on hosted upstream/candidate artifacts for both targets and link its reports. Earlier successful CI predates this gate.
+- [x] Hosted upstream/candidate builds and final-ZIP architecture gates pass for both targets in [run 34797782854](https://github.com/Unitron07/Asteria-Windows/actions/runs/34797782854). Real-device execution remains unqualified.
 - [ ] Test the portable ARM64 build on a real Windows 11 ARM64 device without development tools: verify native process architecture, launch, discovery/manual host, pairing, H.264 1080p60 SDR, audio, keyboard, mouse, and gamepad with separately recorded Sunshine and Apollo hosts.
 - [ ] Record hardware decoding and a performance baseline on that device against unmodified ARM64 Moonlight built with the same inputs. Test available additional codecs without claiming unsupported GPU paths.
 
@@ -48,8 +48,9 @@ The first useful preview should preserve Sunshine streaming and add desktop prof
 
 ## M1 — Project identity and desktop workflow foundation
 
-- [ ] Rename app/package identity and artwork as needed; preserve upstream attribution and licenses.
-- [ ] Isolate settings, pairing identity, logs, and installer identifiers; verify side-by-side use with Moonlight.
+- [x] Implement Asteria app/package identity and artwork while preserving upstream attribution and licenses (PR #9).
+- [x] Isolate settings, pairing identity, logs, and installer identifiers.
+- [ ] Qualify side-by-side use with Moonlight on the release test machines; installer lifecycle checks apply when installers are offered.
 - [ ] Add versioned global/host/app profiles around existing resolution, FPS, bitrate, codec, and input settings. Validate bounds and explain which changes require reconnecting.
 - [ ] Add configurable session shortcuts and distinct actions for disconnecting the client, quitting the remote application, and closing the local app. Preserve a local capture-release shortcut.
 - [ ] Extend existing diagnostics only for missing data; retain upstream stats and avoid adding per-frame logging.
@@ -71,9 +72,9 @@ The goal is not to blindly copy Artemis Android decoder tweaks. Artemis Android 
 - [ ] Extend the performance overlay only with Windows counters whose timing boundaries are understood. Useful candidates include network latency/variance, decode time, presentation queue depth, present timing, dropped frames, codec/decoder, and active pacing mode.
 - [ ] Avoid changing networking, decoder selection, or input paths unless measurements identify them as the actual bottleneck. Any default behavior change requires reproducible evidence that it improves a stated metric or pacing condition without unacceptable regressions.
 
-**Exit gate:** at least one representative x64 system and one ARM64 system have reproducible upstream-vs-Artemis traces. Any shipped performance mode improves a stated metric or frame-pacing condition without unacceptable latency, stability, power, or compatibility regressions. Stable-network and jittered-network cases are both tested, and the upstream-compatible mode remains available. If no prototype reliably beats upstream, retain upstream presentation behavior and keep only the useful instrumentation/diagnostics.
+**Exit gate:** at least one representative x64 system and one ARM64 system have reproducible upstream-vs-Asteria traces. Any shipped performance mode improves a stated metric or frame-pacing condition without unacceptable latency, stability, power, or compatibility regressions. Stable-network and jittered-network cases are both tested, and the upstream-compatible mode remains available. If no prototype reliably beats upstream, retain upstream presentation behavior and keep only the useful instrumentation/diagnostics.
 
-**Deliverable:** performance trace format, benchmark procedure, upstream-vs-Artemis results, and only the presentation/pacing modes that survive measurement.
+**Deliverable:** performance trace format, benchmark procedure, upstream-vs-Asteria results, and only the presentation/pacing modes that survive measurement.
 
 ## M2 — Pointer/scaling correctness and Apollo capability foundation
 
@@ -104,7 +105,7 @@ The goal is not to blindly copy Artemis Android decoder tweaks. Artemis Android 
 
 ## M5 — Qualify and release
 
-- [ ] Re-run the M1A candidate-to-upstream performance comparison using the same hardware, host, display mode, codec, network, and workload for release candidates.
+- [ ] When M1A performance changes are included, re-run the candidate-to-upstream performance comparison using the same hardware, host, display mode, codec, network, and workload for release candidates.
 - [ ] Complete required [functional and performance checks](VALIDATION.md), including GPU-specific paths available for the claimed support matrix.
 - [ ] Produce separate x64 and native ARM64 portable ZIPs for the first preview, with runtime dependencies, version information, hashes, symbols, notices, and corresponding source including pinned submodule contents. Publish exact build steps and known limitations for each architecture. Do not label an x64-emulated build as the ARM64 release.
 - [ ] Validate ZIP data location, update, and clean-machine launch. Adapt upstream installer infrastructure after the portable preview is stable; test install/upgrade/uninstall and preservation of user data.
@@ -125,4 +126,4 @@ Keep feature PRs small and avoid mass renames of upstream source directories. Re
 - Overlay rendering approach: choose only after testing the existing video-window integration and latency impact.
 - Touch-device qualification beyond the baseline keyboard/mouse/gamepad cases remains later work.
 
-Do not attach calendar estimates until the ARM64 baseline, Windows performance experiments, and Apollo protocol spikes identify actual effort. The next concrete implementation task is M0A, followed by M1 identity and storage isolation, then M1A Windows performance/frame-pacing work.
+Do not attach calendar estimates until the ARM64 baseline, Windows performance experiments, and Apollo protocol spikes identify actual effort. The next concrete task is M0A real-device qualification and same-commit x64 smoke testing for the initial preview. M1 identity/storage isolation is implemented; profiles, session workflows, and M1A–M4 remain future implementation work.

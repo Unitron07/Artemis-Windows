@@ -15,9 +15,11 @@ Use the result template below to fill those gaps during M0A qualification.
 
 Both upstream and candidate CI jobs run the offline package guard tests, then validate the final portable ZIP during the build wrapper. Review `package-architecture.json` in the architecture-specific evidence artifact: `passed` must be true, its SHA-256 must match the tested ZIP, and every EXE/DLL must have the target's machine type. The scanner includes nested Qt plugins and rejects foreign architectures and malformed headers. Its regression suite deliberately adds an x64 DLL to an ARM64 package and verifies rejection, with the reverse case for x64.
 
-The new gate has local synthetic test coverage; attach hosted reports when available. Passing PE inspection does not prove native process execution, clean-machine launch, dependency completeness, or hardware decoding. Those remain real-device checks below.
+The gate has local synthetic test coverage and passes for upstream/candidate x64 and ARM64 packages in [run 34797782854](https://github.com/Unitron07/Asteria-Windows/actions/runs/34797782854). Retain the hash-bound reports for the exact release ZIPs. Passing PE inspection does not prove native process execution, clean-machine launch, dependency completeness, or hardware decoding. Those remain real-device checks below.
 
 ## Functional checks
+
+Apply this checklist to the advertised release scope. Clipboard, virtual-display controls, server commands, profiles, and new performance modes are future work; mark their checks not applicable until implemented and included. Installer lifecycle checks apply when installers are offered. The first portable preview covers inherited streaming and Asteria identity.
 
 | Area | Required cases | Pass condition |
 | --- | --- | --- |
@@ -75,7 +77,8 @@ Windows 10 x64 still needs its own declared minimum OS/runtime and hardware qual
 ## Release checklist
 
 - [x] M0 x64 upstream and candidate CI builds pass; see run 34736992552.
-- [ ] Documented builds reproduced locally; M0A ARM64 upstream and candidate CI builds pass.
+- [x] Upstream and candidate x64/ARM64 CI builds and final-ZIP architecture checks pass; see run 34797782854.
+- [ ] Documented release builds reproduced locally.
 - [ ] ARM64 portable package contains native target binaries and runs natively on the recorded ARM64 device.
 - [ ] Functional and regression gates pass for the advertised scope.
 - [ ] Separate x64 and ARM64 portable builds run with deployed runtimes on clean machines; data-location behavior is documented for each.
