@@ -32,32 +32,6 @@ void AutoUpdateChecker::start()
     // Asteria must never offer upstream Moonlight binaries as its own updates.
     // Re-enable this when Asteria publishes and signs its own update manifest.
     qInfo() << "Asteria automatic update checks are disabled until an Asteria update feed is available.";
-    return;
-
-    if (!m_Nam) {
-        Q_ASSERT(m_Nam);
-        return;
-    }
-
-#if defined(Q_OS_WIN32) || defined(Q_OS_DARWIN) || defined(STEAM_LINK) || defined(APP_IMAGE) // Only run update checker on platforms without auto-update
-#if QT_VERSION >= QT_VERSION_CHECK(5, 14, 0) && QT_VERSION < QT_VERSION_CHECK(5, 15, 1) && !defined(QT_NO_BEARERMANAGEMENT)
-    // HACK: Set network accessibility to work around QTBUG-80947 (introduced in Qt 5.14.0 and fixed in Qt 5.15.1)
-    QT_WARNING_PUSH
-    QT_WARNING_DISABLE_DEPRECATED
-    m_Nam->setNetworkAccessible(QNetworkAccessManager::Accessible);
-    QT_WARNING_POP
-#endif
-
-    // We'll get a callback when this is finished
-    QUrl url("https://moonlight-stream.org/updates/qt.json");
-    QNetworkRequest request(url);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-    request.setAttribute(QNetworkRequest::Http2AllowedAttribute, true);
-#else
-    request.setAttribute(QNetworkRequest::HTTP2AllowedAttribute, true);
-#endif
-    m_Nam->get(request);
-#endif
 }
 
 void AutoUpdateChecker::parseStringToVersionQuad(QString& string, QVector<int>& version)
