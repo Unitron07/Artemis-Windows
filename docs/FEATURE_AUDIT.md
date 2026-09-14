@@ -67,7 +67,7 @@ The inspected PC core header has no `LiSendExecServerCmd` API [S10]. Port the sm
 
 ## Build findings
 
-The inspected PC branch uses Qt/QML and qmake projects. Its Windows workflow selects Qt 6.11.2, the `windows-2025` runner, and MSVC-named Qt kits, including an ARM64 cross-compiled kit. Its README names Visual Studio 2026, while the kit paths retain `msvc2022` naming [S3, S11]. M0's x64 build evidence records the actual selected Visual Studio/SDK/compiler; do the same for the ARM64 cross toolchain in M0A. The current Artemis CI invokes only its x64 harness despite retaining upstream ARM64-capable source and workflows.
+The inspected PC branch uses Qt/QML and qmake projects. Its Windows workflow selects Qt 6.11.2, the `windows-2025` runner, and MSVC-named Qt kits, including an ARM64 cross-compiled kit. Its README names Visual Studio 2026, while the kit paths retain `msvc2022` naming [S3, S11]. The Artemis harness records the actual selected Visual Studio/SDK/compiler for both targets. PR #6 added upstream/candidate x64 and ARM64 CI; all four jobs passed in the run linked from [BASELINE.md](BASELINE.md). The new package architecture gate and outstanding device qualification are tracked there separately from this source audit.
 
 Upstream `setup-deps.ps1` downloads the `v15` Windows dependency archives. The M0A harness now pins and independently verifies both x64 and ARM64 archives; see [dependency notes](DEPENDENCIES_WINDOWS.md). The input code contains SDL2 and sdl2-compat/SDL3 handling, so record the actual deployed runtime for each architecture; avoid a blanket SDL-major-version assumption [S4, S12]. Existing Windows build scripts already package portable artifacts and installer components [S13].
 

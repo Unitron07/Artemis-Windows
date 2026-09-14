@@ -12,7 +12,9 @@ The executable still identifies as Moonlight. M0A keeps this baseline while addi
 
 ## Implementation scope
 
-Steps 1 and 2 (build target selection and pinned dependencies) are implemented in the harness. Both archive checksums and dependency integrity guards were tested locally. Use separate x64/ARM64 checkouts to isolate upstream's shared dependency headers. Full ARM64 compilation has not yet been validated; the next task is ARM64 CI, followed by package and device verification.
+Build target selection, pinned dependencies, and x64/ARM64 upstream/candidate CI are implemented in merged PRs #5 and #6. All four jobs passed in [run 34790903403](https://github.com/Unitron07/Artemis-Windows/actions/runs/34790903403) at `be43f5d6fe692b0884ec8cdb2486f8457f4fdd7d`. Use separate x64/ARM64 checkouts to isolate upstream's shared dependency headers.
+
+The harness now validates every EXE/DLL in the final portable ZIP with `scripts/test-package-architecture.ps1`, before uploads. It records the package SHA-256, expected/observed machine types, and failures in `package-architecture.json`. Local synthetic package tests cover both targets, nested plugins, foreign architectures, malformed headers, and missing client/runtime files. Hosted validation of this new gate remains pending; the earlier green run did not execute it. The next qualification task is testing the resulting package on real ARM64 hardware.
 
 | Area | Starting files | Required change |
 | --- | --- | --- |
@@ -33,4 +35,4 @@ Reuse the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tooling. Re
 - H.264 1080p60 SDR pairing/streaming with audio, keyboard, mouse and gamepad passes against recorded Sunshine and Apollo versions. Record available codec paths, sleep/resume, display/input behavior, and the soak test from [VALIDATION.md](VALIDATION.md).
 - An ARM64 performance baseline uses unmodified ARM64 Moonlight on the same hardware and inputs. Missing hardware, host access, or untested codecs remain explicit open gates.
 
-The next implementation deliverable is ARM64 CI using the target-aware harness. Do not mark M0A complete merely because CI passes; attach real-device results before claiming native ARM64 qualification. After M0A, begin M1 by isolating Artemis names, settings, pairing credentials, logs, update identity, and installer identifiers on both targets, then add profiles and session actions.
+The next deliverable is a real-device qualification report linked to a package that passed the new architecture gate. Record Windows build, device/SoC/GPU/driver, native process architecture, decoder, separate Sunshine/Apollo versions, streaming/input results, sleep/resume, soak testing, and same-device upstream performance comparisons. Do not mark M0A complete merely because CI passes; attach real-device results before claiming native ARM64 qualification. After M0A, begin M1 by isolating Artemis names, settings, pairing credentials, logs, update identity, and installer identifiers on both targets, then add profiles and session actions.
