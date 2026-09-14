@@ -328,11 +328,11 @@ CenteredGridView {
         function connectionTestComplete(result, blockedPorts)
         {
             if (result === -1) {
-                text = qsTr("The network test could not be performed because none of Asteria's connection testing servers were reachable from this PC. Check your Internet connection or try again later.")
+                text = qsTr("The network test could not be performed because none of Moonlight's connection testing servers were reachable from this PC. Check your Internet connection or try again later.")
                 imageSrc = "qrc:/res/baseline-warning-24px.svg"
             }
             else if (result === 0) {
-                text = qsTr("This network does not appear to be blocking Asteria. If you still have trouble connecting, check your PC's firewall settings.") + "\n\n" + qsTr("If you are trying to stream over the Internet, install the Asteria Internet Hosting Tool on your gaming PC and run the included Internet Streaming Tester to check your gaming PC's Internet connection.")
+                text = qsTr("This network does not appear to be blocking Asteria. If you still have trouble connecting, check your PC's firewall settings.") + "\n\n" + qsTr("If you are trying to stream over the Internet, install the Moonlight Internet Hosting Tool on your gaming PC and run the included Internet Streaming Tester to check your gaming PC's Internet connection.")
                 imageSrc = "qrc:/res/baseline-check_circle_outline-24px.svg"
             }
             else {
