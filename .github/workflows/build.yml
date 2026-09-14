@@ -31,4 +31,4 @@ jobs:
     with:
       architecture: ${{ matrix.architecture }}
       source-ref: ${{ github.sha }}
-      label: candidate
+      label: asteria
