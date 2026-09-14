@@ -61,6 +61,8 @@ CI exercises these build arguments for both ARM64 upstream and candidate. Use th
 
 ## Final ZIP architecture gate
 
+On ARM64, the wrapper first inspects the known surplus root `vcruntime140_1.dll` using `repair-arm64-package.ps1`. If it is x64, the wrapper removes it only after the selected MSVC `dumpbin /dependents` successfully inspects every other packaged EXE/DLL and finds no normal or delay-load imports of it. Native ARM64 versions are retained. `arm64-runtime-cleanup.json` contains the decision, per-binary dependency output, and before/after ZIP hashes. The deployed staging directory and MSI are not rewritten; the final portable ZIP is the validated preview artifact. See [the failure and correction record](BASELINE.md#arm64-crt-packaging-correction).
+
 The wrapper validates the final portable ZIP after adding source notices and before CI uploads. `scripts/test-package-architecture.ps1` inspects every EXE/DLL entry recursively, including nested Qt plugins, and requires exact ARM64 (`0xAA64`) or x64 (`0x8664`) PE machine type and a PE32+ header. It rejects missing `Moonlight.exe`, missing runtime DLLs, malformed headers, and foreign architectures. It does not execute binaries or establish complete runtime dependency resolution.
 
 `build/evidence/<architecture>/package-architecture.json` records the package SHA-256, target, each binary's machine type, and any failures. Failures stop normal uploads; the workflow still attempts to upload evidence. The report hash identifies the exact ZIP inspected.
