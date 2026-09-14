@@ -1,4 +1,4 @@
-name: Build Windows baseline
+name: Build Windows upstream/Asteria baseline
 on:
   workflow_call:
     inputs:
