@@ -310,7 +310,7 @@ if defined CI_VERSION (
     echo. > %DEPLOY_FOLDER%\portable.dat.inactive
     if !ERRORLEVEL! NEQ 0 goto Error
 ) else (
-    rem This file tells Moonlight that it's a portable installation
+    rem This file tells Asteria that it's a portable installation
     echo. > %DEPLOY_FOLDER%\portable.dat
     if !ERRORLEVEL! NEQ 0 goto Error
 )
