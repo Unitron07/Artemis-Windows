@@ -13,8 +13,8 @@ $archive = $null
 try {
     $archive = [IO.Compression.ZipFile]::OpenRead($PackagePath)
     $entries = @($archive.Entries | Where-Object { $_.FullName -match '(?i)\.(exe|dll)$' })
-    if (!($entries | Where-Object { $_.Name -ieq 'Moonlight.exe' })) {
-        $errors.Add('Package is missing Moonlight.exe')
+    if (!($entries | Where-Object { $_.Name -ieq 'Asteria.exe' })) {
+        $errors.Add('Package is missing Asteria.exe')
     }
     if (!($entries | Where-Object { $_.Name -match '(?i)\.dll$' })) {
         $errors.Add('Package contains no runtime DLLs')
