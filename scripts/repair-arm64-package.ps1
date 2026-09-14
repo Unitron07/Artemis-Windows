@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory)][string]$PackagePath,
     [Parameter(Mandatory)][string]$DumpbinPath,
-    [Parameter(Mandatory)][string]$ReportPath
+    [Parameter(Mandatory)][string]$ReportPath,
+    [string]$ClientExecutable = 'Asteria.exe'
 )
 $ErrorActionPreference = 'Stop'
 $PackagePath = (Resolve-Path -LiteralPath $PackagePath).Path
@@ -35,7 +36,7 @@ try {
     if ($machine -ne 0x8664) { throw ('Unexpected runtime machine 0x{0:X4}' -f $machine) }
     New-Item -ItemType Directory -Path $scratch | Out-Null
     $binaries = @($zip.Entries | Where-Object { $_.FullName -match '(?i)\.(exe|dll)$' -and $_.FullName -ine 'vcruntime140_1.dll' })
-    if (!($binaries | Where-Object { $_.Name -ieq 'Moonlight.exe' })) { throw 'Missing client for dependency inspection' }
+    if (!($binaries | Where-Object { $_.Name -ieq $ClientExecutable })) { throw "Missing client for dependency inspection: $ClientExecutable" }
     $index = 0
     foreach ($entry in $binaries) {
         # Use generated filenames, never archive paths, when extracting for inspection.
