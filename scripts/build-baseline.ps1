@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $SourceRoot = (Resolve-Path -LiteralPath $SourceRoot).Path
 # Upstream build-arch.bat uses unquoted source paths.
-if ($SourceRoot -match '[\s!&()%\^]') { throw 'Use a checkout path without spaces or shell metacharacters, for example C:\src\Artemis.' }
+if ($SourceRoot -match '[\s!&()%\^]') { throw 'Use a checkout path without spaces or shell metacharacters, for example C:\src\Asteria.' }
 $Architecture = $Architecture.ToLowerInvariant()
 . (Join-Path $PSScriptRoot 'baseline-preflight.ps1')
 Assert-BaselineDependencies -SourceRoot $SourceRoot -Architecture $Architecture
@@ -94,7 +94,7 @@ exit /b 0
     if ($LASTEXITCODE -ne 0) { throw 'Unable to capture compiler and SDK versions' }
     Get-Content (Join-Path $evidence 'compiler.txt'), (Join-Path $evidence 'sdk.txt') | Out-Host
     # With CI_VERSION unset upstream creates portable.dat, keeping this test
-    # build's settings separate from an installed Moonlight user profile.
+    # build's settings separate from an installed Asteria user profile.
     $savedVersion = $env:CI_VERSION
     $env:CI_VERSION = $null
     try {
