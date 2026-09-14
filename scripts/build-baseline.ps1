@@ -124,14 +124,15 @@ This unsigned development baseline is not a qualified Asteria release.
     if ($package.Count -ne 1) { throw 'Expected exactly one portable ZIP' }
     7z a $package[0].FullName "$deploy\source-notices"
     if ($LASTEXITCODE -ne 0) { throw 'Unable to include source notices' }
+    $clientExecutable = if ($sha -eq 'e3fd29e4d7dc5723d8d0da7d19e2698daec74456') { 'Moonlight.exe' } else { 'Asteria.exe' }
     if ($Architecture -eq 'arm64') {
         $dumpbinPath = Get-Content (Join-Path $evidence 'dumpbin-path.txt') | Select-Object -First 1
         & (Join-Path $PSScriptRoot 'repair-arm64-package.ps1') `
             -PackagePath $package[0].FullName -DumpbinPath $dumpbinPath `
-            -ReportPath (Join-Path $evidence 'arm64-runtime-cleanup.json')
+            -ReportPath (Join-Path $evidence 'arm64-runtime-cleanup.json') `
+            -ClientExecutable $clientExecutable
     }
     # Inspect the final ZIP, including nested Qt plugins, before any artifact upload.
-    $clientExecutable = if ($sha -eq 'e3fd29e4d7dc5723d8d0da7d19e2698daec74456') { 'Moonlight.exe' } else { 'Asteria.exe' }
     & (Join-Path $PSScriptRoot 'test-package-architecture.ps1') `
         -PackagePath $package[0].FullName -Architecture $Architecture `
         -ReportPath (Join-Path $evidence 'package-architecture.json') `
