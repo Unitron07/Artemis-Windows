@@ -37,7 +37,7 @@ Use fixtures/unit tests for permission parsing, profiles/migrations, URL encodin
 
 ## Performance method
 
-1. Build unmodified upstream and the Artemis candidate in Release configuration with the same dependencies. Record both SHAs.
+1. Build unmodified upstream and the Asteria candidate in Release configuration with the same dependencies. Record both SHAs.
 2. Use the same client GPU/driver, host build/GPU/encoder, resolution, refresh rate, codec, bitrate, display, power mode, and network path.
 3. Warm up for two minutes, then collect at least three five-minute runs of each build. Alternate their order and use the same reproducible workload. Start with wired LAN 1080p60 H.264 SDR, then test enabled extensions.
 4. Record median and p95 decode/render/frame-queue times where available, frame drops, frame pacing, CPU/GPU load, memory trend, audio glitches, and connection failures. Keep raw logs and the workload description.
