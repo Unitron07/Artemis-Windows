@@ -1,36 +1,46 @@
-# Artemis Windows
+# Asteria
 
-A Windows fork of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), bringing over the useful desktop and office features of [Artemis Android](https://github.com/MobinYengejehi/Artemis).
+**Asteria** is a native Windows game-streaming client based on [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), with enhanced integration planned for [Apollo](https://github.com/ClassicOldSong/Apollo) hosts and selected desktop/workflow ideas inspired by [Artemis Android](https://github.com/MobinYengejehi/Artemis).
 
-> Status: M0 is merged and x64/ARM64 upstream and candidate CI builds passed after [PR #6](https://github.com/Unitron07/Artemis-Windows/pull/6)'s implementation. The harness now checks final portable ZIP binary architectures before upload. Native ARM64 device qualification remains the M0A priority; Artemis identity and features follow. See the [baseline report](docs/BASELINE.md) for evidence and open gates.
+> **Status:** the x64 and native ARM64 build baselines are established. PR #8 fixed the ARM64 portable-package CRT contamination exposed by the strict architecture gate. Real Windows 11 ARM64 device qualification remains the final M0A gate. The product identity is now moving from the upstream Moonlight identity to **Asteria**.
 
 ## Direction
 
-**Establish native Windows x64 and ARM64 baselines, then add the Artemis features that Moonlight does not already provide.** Keep upstream's Qt/QML interface, SDL input/session code, hardware decoding, build scripts, and source layout. Port behavior from Android at the relevant boundary.
+Asteria keeps Moonlight PC's mature Qt/QML UI, SDL input/session stack, hardware decoding paths, build structure, and upstream history. New behavior is added at narrow integration boundaries so Moonlight security/correctness updates can continue to be merged without a giant permanent fork.
 
-Moonlight already supplies much of the foundation, including custom resolution/frame-rate settings, direct mouse control, hardware decoding, HDR, and AV1. These are baseline features to preserve and test. See the [source audit and feature matrix](docs/FEATURE_AUDIT.md) for evidence and the remaining work.
+Moonlight already provides discovery, pairing, streaming, custom resolution/frame-rate controls, direct mouse input, hardware decoding, HDR, AV1, gamepad support, and performance statistics. Asteria should preserve those strengths while adding a Windows-focused identity, profiles and session workflows, measured frame-pacing improvements, and Apollo extensions.
 
-## First release scope
+## First preview scope
 
-- Windows 11 x64 and native ARM64 are first-preview targets. ARM64 build and hardware qualification are the immediate priority; Windows 10 x64 compatibility remains a separate, unverified target.
-- Existing Sunshine streaming behavior, plus individually tested Apollo extensions.
-- Desktop profiles, session shortcuts, clear disconnect/quit actions, and reliable pointer/scaling behavior.
+- Windows 11 x64 and **native ARM64**.
+- Existing Sunshine compatibility plus individually tested Apollo extensions.
+- Asteria-specific settings, pairing identity, logs, package/install identity, and side-by-side coexistence with Moonlight.
+- Desktop profiles, clearer session actions and configurable shortcuts.
+- Measurement-driven Windows frame-pacing/latency work.
 - Opt-in plain-text clipboard transfer with Apollo, followed by host-managed virtual-display integration.
-- Portable ZIP preview; installer and signing follow release validation.
+- Portable ZIP preview first; installer/signing follow release validation.
 
-Touch-overlay parity, simultaneous multi-stream viewing, and file transfer are later work. Existing upstream capabilities should remain intact.
+Touch-overlay parity, simultaneous multi-stream viewing, and file transfer are later work.
 
-## Plan
+## Roadmap
 
-1. [Porting plan](docs/PORTING_PLAN.md): implementation order, dependencies, and completion criteria.
-2. [Architecture](docs/ARCHITECTURE.md): upstream integration points and ownership boundaries.
-3. [Feature audit](docs/FEATURE_AUDIT.md): pinned sources, existing features, and Apollo protocol findings.
-4. [Validation plan](docs/VALIDATION.md): functional, compatibility, performance, and release checks.
+1. **M0 — baseline import:** merged.
+2. **M0A — native Windows ARM64:** build/CI/package architecture work is implemented; real-device qualification remains.
+3. **M1 — Asteria identity and desktop workflow:** isolate product/settings/pairing/package identity, then profiles and session actions.
+4. **M1A — Windows performance/frame pacing:** instrument and benchmark before changing defaults.
+5. **M2 — pointer/scaling correctness and Apollo capability parsing.**
+6. **M3 — Apollo text clipboard and virtual-display requests.**
+7. **M4 — Apollo server commands.**
+8. **M5 — release qualification.**
 
-Continue [M0A: native Windows ARM64](docs/NEXT_STEP.md). The [Windows build harness](docs/BUILD_WINDOWS.md) builds both targets with pinned dependencies and checks every EXE/DLL in the final ZIP, including nested Qt plugins. The new package gate has local guard-test coverage; hosted validation of this change and real-device qualification remain open. The [baseline report](docs/BASELINE.md) records successful build CI and the owner's earlier x64 test confirmation. The [upstream README](docs/MOONLIGHT_README.md) is preserved separately.
+See the detailed [porting plan](docs/PORTING_PLAN.md), [architecture](docs/ARCHITECTURE.md), [feature audit](docs/FEATURE_AUDIT.md), [Windows build guide](docs/BUILD_WINDOWS.md), and [validation plan](docs/VALIDATION.md).
+
+## Naming and provenance
+
+**Asteria** is the application/product name. The intended repository name is **Asteria-Windows**.
+
+The source remains a derivative of Moonlight PC and retains upstream history, licenses, source notices, submodules, and attribution. `docs/MOONLIGHT_README.md` preserves the upstream README. References to Artemis in the audit and roadmap refer to the separate Android project used as a behavioral reference; Asteria is an independent Windows client.
 
 ## Licensing and maintenance
 
-The reviewed Artemis and Moonlight repositories include GPLv3 license texts. Preserve their applicable notices and licensing when importing code; ship the corresponding source and dependency/license information with releases. See the [upstream Moonlight license](https://github.com/moonlight-stream/moonlight-qt/blob/e3fd29e4d7dc5723d8d0da7d19e2698daec74456/LICENSE).
-
-Keep Artemis changes small and isolated so upstream maintenance and security fixes can be integrated regularly. This project is an independent derivative and should use its own application, settings, pairing, and package identity.
+The reviewed Moonlight and Artemis sources include GPLv3 licensing. Preserve all applicable notices and corresponding-source obligations when publishing builds. Keep Asteria changes small and isolated so upstream Moonlight security and correctness fixes can be integrated regularly.
