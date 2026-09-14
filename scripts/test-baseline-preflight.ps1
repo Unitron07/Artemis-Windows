@@ -46,6 +46,20 @@ try {
     $env:PATH = "$hostBin;$targetBin;$originalPath"
     Assert-Rejected { Resolve-BaselineQt x64 } 'Specify -QtBin explicitly'
 } finally { $env:PATH = $originalPath }
+# Real Qt 6.11 ARM64 kits contain both a native qmake.exe and host-qmake.bat.
+$forwarderBin = Join-Path $scratch 'forwarder/Qt/6.11.2/msvc2022_arm64/bin'
+New-Item -ItemType Directory -Force $forwarderBin | Out-Null
+New-Item -ItemType File (Join-Path $forwarderBin 'qmake.exe'), (Join-Path $forwarderBin 'host-qmake.bat') | Out-Null
+if ((Split-Path (Resolve-BaselineQmake $forwarderBin) -Leaf) -ne 'host-qmake.bat') {
+    throw 'ARM64 qmake.exe was selected instead of the host forwarder'
+}
+New-Item -ItemType File (Join-Path $forwarderBin 'qmake.bat') | Out-Null
+if ((Split-Path (Resolve-BaselineQmake $forwarderBin) -Leaf) -ne 'qmake.bat') {
+    throw 'qmake.bat must take precedence to match upstream'
+}
+if ((Split-Path (Resolve-BaselineQmake $hostBin) -Leaf) -ne 'qmake.exe') {
+    throw 'x64 executable fallback is broken'
+}
 # Corrupt downloads must fail before any dependency directory is extracted.
 function Invoke-WebRequest { param($Uri, $OutFile) Set-Content -LiteralPath $OutFile 'corrupt archive' }
 $badRoot = Join-Path $scratch 'bad-download'

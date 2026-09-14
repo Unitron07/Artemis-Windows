@@ -12,13 +12,23 @@ concurrency:
   cancel-in-progress: true
 jobs:
   upstream:
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, arm64]
     uses: ./.github/workflows/build-windows-baseline.yml
     with:
+      architecture: ${{ matrix.architecture }}
       source-ref: e3fd29e4d7dc5723d8d0da7d19e2698daec74456
       label: upstream
   candidate:
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, arm64]
     needs: upstream
     uses: ./.github/workflows/build-windows-baseline.yml
     with:
+      architecture: ${{ matrix.architecture }}
       source-ref: ${{ github.sha }}
       label: candidate
