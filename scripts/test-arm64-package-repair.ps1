@@ -49,7 +49,7 @@ try {
         } finally { $zip.Dispose() }
         $before = (Get-FileHash $package).Hash
         $failure = $null
-        try { & $repair -PackagePath $package -DumpbinPath $dumpbin -ReportPath $reportPath } catch { $failure = $_.Exception.Message }
+        try { & $repair -PackagePath $package -DumpbinPath $dumpbin -ReportPath $reportPath -ClientExecutable 'Asteria.exe' } catch { $failure = $_.Exception.Message }
         $expectedFailure = $mode -in @('normal', 'delay', 'error', 'malformed')
         if ([bool]$failure -ne $expectedFailure) { throw "Unexpected result for ${mode}: $failure" }
         $report = Get-Content $reportPath -Raw | ConvertFrom-Json
