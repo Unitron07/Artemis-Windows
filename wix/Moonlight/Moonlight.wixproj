@@ -4,6 +4,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <OutputPath>$(BUILD_FOLDER)\</OutputPath>
+    <OutputName>Asteria</OutputName>
     <IntermediateOutputPath>$(BUILD_FOLDER)\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup>
