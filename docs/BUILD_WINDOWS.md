@@ -30,7 +30,7 @@ The wrapper calls unchanged `scripts/build-arch.bat Release`, which configures q
 - `build/symbols-x64-release/MoonlightDebuggingSymbols-x64-*.zip`
 - `build/evidence/x64/`: build transcript, source/submodule revisions, compiler/SDK information, dependency versions/hashes, artifact hashes, runner image metadata when available, and a source archive including recursive submodule contents. Source notices are included in the portable ZIP. ARM64 uses `build/evidence/arm64/` and corresponding `*-arm64-release` output folders.
 
-The wrapper unsets `CI_VERSION` while building so upstream includes **portable.dat**. Extract into a separate writable folder and keep that marker. The application is still Moonlight; using non-portable mode may share an installed Moonlight profile. M1 will introduce Artemis identity isolation.
+The wrapper unsets `CI_VERSION` while building so upstream includes **portable.dat**. Extract into a separate writable folder and keep that marker. The application is still Moonlight; using non-portable mode may share an installed Moonlight profile. M1 will introduce Asteria identity isolation.
 
 ## Unmodified upstream comparison
 
@@ -82,7 +82,7 @@ The suite covers clean x64/ARM64 packages, nested plugins, deliberately injected
 
 The x64 upstream and candidate builds passed in [run 34736992552](https://github.com/Unitron07/Artemis-Windows/actions/runs/34736992552). The owner reported a successful manual test before merging PR #1; detailed client/host records remain in the qualification backlog.
 
-Hosted builds do not validate GPU decoding, pairing, performance, or OS compatibility. Complete the [baseline report](BASELINE.md) and [validation checklist](VALIDATION.md) on real x64 and ARM64 Windows machines against separately recorded Sunshine and Apollo versions. These CI packages are development evidence, not a qualified Artemis release. ARM64 qualification is part of M0A and the first-preview scope; Windows 10 x64 compatibility remains separate.
+Hosted builds do not validate GPU decoding, pairing, performance, or OS compatibility. Complete the [baseline report](BASELINE.md) and [validation checklist](VALIDATION.md) on real x64 and ARM64 Windows machines against separately recorded Sunshine and Apollo versions. These CI packages are development evidence, not a qualified Asteria release. ARM64 qualification is part of M0A and the first-preview scope; Windows 10 x64 compatibility remains separate.
 
 ### CI artifact names
 
