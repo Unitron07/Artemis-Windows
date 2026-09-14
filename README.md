@@ -2,7 +2,7 @@
 
 A Windows fork of [Moonlight PC](https://github.com/moonlight-stream/moonlight-qt), bringing over the useful desktop and office features of [Artemis Android](https://github.com/MobinYengejehi/Artemis).
 
-> Status: M0 baseline integration merged in [PR #1](https://github.com/Unitron07/Artemis-Windows/pull/1). Windows x64 CI passed and the project owner confirmed the tested client works. The next priority is a native Windows ARM64 baseline (M0A). Artemis identity and features follow; detailed hardware qualification remains tracked in the [baseline report](docs/BASELINE.md).
+> Status: M0 is merged and x64/ARM64 upstream and candidate CI builds passed after [PR #6](https://github.com/Unitron07/Artemis-Windows/pull/6)'s implementation. The harness now checks final portable ZIP binary architectures before upload. Native ARM64 device qualification remains the M0A priority; Artemis identity and features follow. See the [baseline report](docs/BASELINE.md) for evidence and open gates.
 
 ## Direction
 
@@ -27,7 +27,7 @@ Touch-overlay parity, simultaneous multi-stream viewing, and file transfer are l
 3. [Feature audit](docs/FEATURE_AUDIT.md): pinned sources, existing features, and Apollo protocol findings.
 4. [Validation plan](docs/VALIDATION.md): functional, compatibility, performance, and release checks.
 
-Continue [M0A: native Windows ARM64](docs/NEXT_STEP.md). The [Windows build harness](docs/BUILD_WINDOWS.md) accepts x64 and ARM64 targets with pinned dependencies; CI still covers x64. ARM64 compilation, package verification, and device qualification remain next. The [M0 report](docs/BASELINE.md) records successful CI and the owner's test confirmation, along with outstanding qualification details. The [upstream README](docs/MOONLIGHT_README.md) is preserved separately.
+Continue [M0A: native Windows ARM64](docs/NEXT_STEP.md). The [Windows build harness](docs/BUILD_WINDOWS.md) builds both targets with pinned dependencies and checks every EXE/DLL in the final ZIP, including nested Qt plugins. The new package gate has local guard-test coverage; hosted validation of this change and real-device qualification remain open. The [baseline report](docs/BASELINE.md) records successful build CI and the owner's earlier x64 test confirmation. The [upstream README](docs/MOONLIGHT_README.md) is preserved separately.
 
 ## Licensing and maintenance
 

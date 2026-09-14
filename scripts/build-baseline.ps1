@@ -122,6 +122,10 @@ This unsigned Moonlight baseline is not a qualified Artemis release.
     if ($package.Count -ne 1) { throw 'Expected exactly one portable ZIP' }
     7z a $package[0].FullName "$deploy\source-notices"
     if ($LASTEXITCODE -ne 0) { throw 'Unable to include source notices' }
+    # Inspect the final ZIP, including nested Qt plugins, before any artifact upload.
+    & (Join-Path $PSScriptRoot 'test-package-architecture.ps1') `
+        -PackagePath $package[0].FullName -Architecture $Architecture `
+        -ReportPath (Join-Path $evidence 'package-architecture.json')
     tar -czf (Join-Path $evidence 'source.tar.gz') --exclude=.git --exclude=./build --exclude=./libs -C $SourceRoot .
     if ($LASTEXITCODE -ne 0) { throw 'Unable to archive source and submodules' }
     Get-ChildItem "build/installer-$Architecture-release/*.zip", "build/symbols-$Architecture-release/*.zip", (Join-Path $evidence 'source.tar.gz') |

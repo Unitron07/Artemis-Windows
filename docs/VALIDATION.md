@@ -11,6 +11,12 @@ This is the qualification checklist. The [baseline report](BASELINE.md) records 
 
 Use the result template below to fill those gaps during M0A qualification.
 
+## Automated package architecture checks
+
+Both upstream and candidate CI jobs run the offline package guard tests, then validate the final portable ZIP during the build wrapper. Review `package-architecture.json` in the architecture-specific evidence artifact: `passed` must be true, its SHA-256 must match the tested ZIP, and every EXE/DLL must have the target's machine type. The scanner includes nested Qt plugins and rejects foreign architectures and malformed headers. Its regression suite deliberately adds an x64 DLL to an ARM64 package and verifies rejection, with the reverse case for x64.
+
+The new gate has local synthetic test coverage; attach hosted reports when available. Passing PE inspection does not prove native process execution, clean-machine launch, dependency completeness, or hardware decoding. Those remain real-device checks below.
+
 ## Functional checks
 
 | Area | Required cases | Pass condition |

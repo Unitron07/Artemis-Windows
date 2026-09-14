@@ -33,11 +33,12 @@ The first useful preview should preserve Sunshine streaming and add desktop prof
 
 ## M0A — Native Windows ARM64 baseline (next priority)
 
-- [x] Extend the existing build harness to accept explicit x64/ARM64 targets, preserving upstream source layout and the default x64 command. Dependency/preflight tests pass; full ARM64 build validation remains below.
-- [ ] Use the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tools. Keep host-side Qt build tools distinct from deployed ARM64 runtime files.
+- [x] Extend the existing build harness to accept explicit x64/ARM64 targets, preserving upstream source layout and the default x64 command. Dependency/preflight tests pass.
+- [x] Use the upstream Qt 6.11.2 ARM64 cross kit and matching MSVC ARM64 tools. Keep host-side Qt build tools distinct from deployed ARM64 runtime files. Implemented in PR #6 and exercised by successful ARM64 CI.
 - [x] Pin and verify the v15 Windows ARM64 dependency archive; record versions, hashes and source/license locations in [dependency notes](DEPENDENCIES_WINDOWS.md). Isolate dependencies with one target per checkout and architecture-specific output/evidence folders.
-- [ ] Build both unmodified upstream and the candidate for ARM64 in Windows CI. Keep x64 coverage; publish separate portable ZIPs, symbols, source, and compiler/SDK/dependency evidence for each architecture.
-- [ ] Verify PE machine type for the client and every shipped native runtime DLL, including Qt plugins, SDL, codecs, and AntiHooking. Reject x64 DLL contamination in the ARM64 package. Build tools used on the host are outside this runtime check.
+- [x] Build both unmodified upstream and the candidate for ARM64 in Windows CI. Keep x64 coverage; publish separate portable ZIPs, symbols, source, and compiler/SDK/dependency evidence for each architecture. All four jobs passed in [run 34790903403](https://github.com/Unitron07/Artemis-Windows/actions/runs/34790903403); PR #6 is merged.
+- [x] Implement final-ZIP PE machine validation for every EXE/DLL, including nested Qt plugins, SDL, codecs, and AntiHooking, with a hash-bound evidence report. Local tests reject x64 DLL contamination in ARM64 packages and the reverse. Host build tools outside the ZIP are not scanned.
+- [ ] Confirm the new package gate passes on hosted upstream/candidate artifacts for both targets and link its reports. Earlier successful CI predates this gate.
 - [ ] Test the portable ARM64 build on a real Windows 11 ARM64 device without development tools: verify native process architecture, launch, discovery/manual host, pairing, H.264 1080p60 SDR, audio, keyboard, mouse, and gamepad with separately recorded Sunshine and Apollo hosts.
 - [ ] Record hardware decoding and a performance baseline on that device against unmodified ARM64 Moonlight built with the same inputs. Test available additional codecs without claiming unsupported GPU paths.
 

@@ -1,6 +1,6 @@
 # Windows baseline builds
 
-Moonlight PC at `e3fd29e4d7dc5723d8d0da7d19e2698daec74456` was imported through PR #1 and merged into `main`. The executable still identifies itself as Moonlight. The harness now accepts `-Architecture x64` (default) or `-Architecture arm64`. Dependency setup and preflight checks have been tested for both; full ARM64 compilation and device qualification remain pending.
+Moonlight PC at `e3fd29e4d7dc5723d8d0da7d19e2698daec74456` was imported through PR #1 and merged into `main`. The executable still identifies itself as Moonlight. The harness accepts `-Architecture x64` (default) or `-Architecture arm64`. Upstream and candidate builds passed for both targets in [run 34790903403](https://github.com/Unitron07/Artemis-Windows/actions/runs/34790903403). Real ARM64 device qualification remains pending.
 
 ## Prerequisites
 
@@ -57,7 +57,22 @@ Set-Location C:\src\Artemis-arm64
 ./scripts/build-baseline.ps1 -Architecture arm64 -QtBin C:\Qt\6.11.2\msvc2022_arm64\bin
 ```
 
-These are the implemented commands, not a claim of a completed ARM64 build. Use the same arguments with `-SourceRoot` for a separate pinned upstream ARM64 checkout. `-QtBin` is optional when PATH contains exactly one supported kit. Keep 7-Zip on PATH as for x64. Full ARM64 CI, deployed-binary PE checks, and hardware tests are the remaining [M0A work](NEXT_STEP.md). Run `pwsh -File scripts/test-baseline-preflight.ps1` to test the dependency and kit guards without Qt/MSVC.
+CI exercises these build arguments for both ARM64 upstream and candidate. Use the same arguments with `-SourceRoot` for a separate pinned upstream ARM64 checkout. `-QtBin` is optional when PATH contains exactly one supported kit. Keep 7-Zip on PATH as for x64. Hosted validation of the newly added package gate and real-device tests remain [M0A work](NEXT_STEP.md). Run `pwsh -File scripts/test-baseline-preflight.ps1` to test the dependency and kit guards without Qt/MSVC.
+
+## Final ZIP architecture gate
+
+The wrapper validates the final portable ZIP after adding source notices and before CI uploads. `scripts/test-package-architecture.ps1` inspects every EXE/DLL entry recursively, including nested Qt plugins, and requires exact ARM64 (`0xAA64`) or x64 (`0x8664`) PE machine type and a PE32+ header. It rejects missing `Moonlight.exe`, missing runtime DLLs, malformed headers, and foreign architectures. It does not execute binaries or establish complete runtime dependency resolution.
+
+`build/evidence/<architecture>/package-architecture.json` records the package SHA-256, target, each binary's machine type, and any failures. Failures stop normal uploads; the workflow still attempts to upload evidence. The report hash identifies the exact ZIP inspected.
+
+To inspect an existing ZIP or run the offline regression suite with PowerShell 7:
+
+```powershell
+./scripts/test-package-architecture.ps1 -PackagePath C:\artifacts\MoonlightPortable-arm64.zip -Architecture arm64 -ReportPath C:\artifacts\package-architecture.json
+./scripts/test-package-architecture-tests.ps1
+```
+
+The suite covers clean x64/ARM64 packages, nested plugins, deliberately injected wrong-architecture DLLs, unsupported machine types, malformed/truncated headers, and missing client/runtime files. Synthetic headers exercise the guard without Qt/MSVC; they are not runnable applications.
 
 ## CI and qualification
 
@@ -69,4 +84,4 @@ Hosted builds do not validate GPU decoding, pairing, performance, or OS compatib
 
 ### CI artifact names
 
-Each successful upstream/candidate architecture job uploads `baseline-<label>-windows-<architecture>-<run>`, `symbols-<label>-windows-<architecture>-<run>`, `source-<label>-windows-<architecture>-<run>`, and `evidence-<label>-windows-<architecture>-<run>`. Source includes recursive submodule contents. Evidence includes source and harness revisions, Qt host/target paths and versions for ARM64, compiler/SDK details, dependency inventory, and SHA-256 hashes for the portable, symbols, and source archives. Evidence uploads are attempted on failure as well. Package PE validation and real-device qualification remain separate M0A gates.
+Each successful upstream/candidate architecture job uploads `baseline-<label>-windows-<architecture>-<run>`, `symbols-<label>-windows-<architecture>-<run>`, `source-<label>-windows-<architecture>-<run>`, and `evidence-<label>-windows-<architecture>-<run>`. Source includes recursive submodule contents. Evidence includes source and harness revisions, Qt host/target paths and versions for ARM64, compiler/SDK details, dependency inventory, SHA-256 hashes for the portable, symbols, and source archives, and the new `package-architecture.json` report. Evidence uploads are attempted on failure as well. Real-device qualification remains a separate M0A gate.

@@ -42,7 +42,9 @@ Observed DLL product versions: FFmpeg revision `d32b387` (avcodec/avformat 63.1.
 | Unmodified upstream Windows x64 build | Pass; [run 34736992552](https://github.com/Unitron07/Artemis-Windows/actions/runs/34736992552), portable ZIP and symbols uploaded |
 | Candidate Windows x64 build and artifacts | Pass; same run, portable ZIP and symbols uploaded; PR head `eef602e793ae72122d21305d1128d5e7daafa25f` |
 | Owner's manual baseline test | Owner reported success before merging PR #1; exact client, host versions, and individual cases were not supplied |
-| Native ARM64 build and hardware validation | Not yet performed; prioritized in M0A |
+| Native ARM64 upstream and candidate builds | Pass; all four x64/ARM64 jobs passed in [run 34790903403](https://github.com/Unitron07/Artemis-Windows/actions/runs/34790903403), PR #6 head `be43f5d6fe692b0884ec8cdb2486f8457f4fdd7d`; merged as `86c2ce98129ba27b975540624c9f262ed86279b9` |
+| Final portable ZIP architecture gate | Implemented for both targets; local synthetic package tests pass, including deliberately injected foreign-architecture DLLs and malformed PE headers. Hosted validation of this gate is pending; the preceding run predates it |
+| Native ARM64 hardware validation | No real-device qualification evidence recorded; remains the M0A priority |
 | Local compile | Not run: Qt/MSVC absent |
 | Clean-machine portable launch | No separate clean-machine evidence recorded |
 | Sunshine pairing and 1080p60 H.264 SDR with audio/input/gamepad | Per-case results and host version not recorded |
@@ -56,3 +58,9 @@ The first upstream CI job successfully built and packaged Moonlight 6.1.0. Its p
 The project owner's statement, "i have confirmed it works", is recorded as a successful manual baseline test, not as evidence that every release-checklist case or both host products were exercised. The owner subsequently merged PR #1. The historical M0 qualification gate is therefore only partly evidenced; its remaining local-build, clean-machine, host-version, decoder, and performance records carry forward into M0A/M5 rather than holding the completed source import open.
 
 The [feature audit](FEATURE_AUDIT.md) remains the source-based feature inventory. No performance numbers are claimed. Use [VALIDATION.md](VALIDATION.md) to record the actual client architecture, hardware, drivers, host versions, stream settings, and results for both x64 and ARM64. Broad support claims remain gated on those results.
+
+## M0A package architecture evidence
+
+`scripts/build-baseline.ps1` now invokes `scripts/test-package-architecture.ps1` after adding source notices to the final portable ZIP. Every EXE and DLL entry is checked, including nested plugins, against exact x64 (`0x8664`) or ARM64 (`0xAA64`) machine type. Missing client/runtime files and malformed PE headers fail validation. ARM64EC/ARM64X and x86 are not accepted as native ARM64. This checks binary architecture, not full loader compatibility or dependency completeness.
+
+The report at `build/evidence/<architecture>/package-architecture.json` records the ZIP SHA-256, per-binary machine types, and errors. A failed check stops normal artifact uploads; CI still attempts the evidence upload. The local test suite uses synthetic PE headers, not runnable applications, and does not establish device or decoder support. Attach hosted reports and real-device results before closing issue #3.
