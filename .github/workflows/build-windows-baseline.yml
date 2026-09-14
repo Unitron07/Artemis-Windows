@@ -36,6 +36,9 @@ jobs:
       - name: Test package architecture guards
         shell: pwsh
         run: ./harness/scripts/test-package-architecture-tests.ps1
+      - name: Test ARM64 runtime packaging repair
+        shell: pwsh
+        run: ./harness/scripts/test-arm64-package-repair.ps1
       - name: Install Qt x64 host kit
         uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4
         with:

@@ -80,6 +80,8 @@ call "$vcvars" $vcArch
 if errorlevel 1 exit /b 1
 where cl
 if errorlevel 1 exit /b 1
+where dumpbin > $evidenceCmd\dumpbin-path.txt
+if errorlevel 1 exit /b 1
 cl /Bv > $evidenceCmd\compiler.txt 2>&1
 rem cl /Bv without a source file reports a usage error after its version banner.
 if not defined WindowsSDKVersion exit /b 1
@@ -122,6 +124,12 @@ This unsigned Moonlight baseline is not a qualified Artemis release.
     if ($package.Count -ne 1) { throw 'Expected exactly one portable ZIP' }
     7z a $package[0].FullName "$deploy\source-notices"
     if ($LASTEXITCODE -ne 0) { throw 'Unable to include source notices' }
+    if ($Architecture -eq 'arm64') {
+        $dumpbinPath = Get-Content (Join-Path $evidence 'dumpbin-path.txt') | Select-Object -First 1
+        & (Join-Path $PSScriptRoot 'repair-arm64-package.ps1') `
+            -PackagePath $package[0].FullName -DumpbinPath $dumpbinPath `
+            -ReportPath (Join-Path $evidence 'arm64-runtime-cleanup.json')
+    }
     # Inspect the final ZIP, including nested Qt plugins, before any artifact upload.
     & (Join-Path $PSScriptRoot 'test-package-architecture.ps1') `
         -PackagePath $package[0].FullName -Architecture $Architecture `
