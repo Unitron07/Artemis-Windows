@@ -17,7 +17,7 @@ Reuse upstream's ARM64 Qt/MSVC/qmake and packaging paths. Keep architecture-spec
 | Area | Existing Moonlight location | Planned change |
 | --- | --- | --- |
 | UI | `app/gui/` | Extend existing settings and session actions; use keyboard-accessible controls |
-| Settings | `app/settings/streamingpreferences.*` | Versioned profiles and validated Artemis settings |
+| Settings | `app/settings/streamingpreferences.*` | Versioned profiles and validated Asteria settings |
 | Discovery, pairing, host HTTP | `app/backend/nvcomputer.*`, `nvhttp.*` | Parse Apollo fields and add a bounded authenticated clipboard request path |
 | Session lifecycle | `app/streaming/session.cpp` | Attach extension services to the existing session |
 | Input | `app/streaming/input/` | Extend existing capture, direct-pointer, and shortcut paths |

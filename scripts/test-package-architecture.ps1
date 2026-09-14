@@ -2,7 +2,8 @@
 param(
     [Parameter(Mandatory)][string]$PackagePath,
     [Parameter(Mandatory)][ValidateSet('x64', 'arm64')][string]$Architecture,
-    [Parameter(Mandatory)][string]$ReportPath
+    [Parameter(Mandatory)][string]$ReportPath,
+    [string]$ClientExecutable = 'Asteria.exe'
 )
 $ErrorActionPreference = 'Stop'
 $expected = if ($Architecture -eq 'arm64') { 0xAA64 } else { 0x8664 }
@@ -13,8 +14,8 @@ $archive = $null
 try {
     $archive = [IO.Compression.ZipFile]::OpenRead($PackagePath)
     $entries = @($archive.Entries | Where-Object { $_.FullName -match '(?i)\.(exe|dll)$' })
-    if (!($entries | Where-Object { $_.Name -ieq 'Moonlight.exe' })) {
-        $errors.Add('Package is missing Moonlight.exe')
+    if (!($entries | Where-Object { $_.Name -ieq $ClientExecutable })) {
+        $errors.Add("Package is missing $ClientExecutable")
     }
     if (!($entries | Where-Object { $_.Name -match '(?i)\.dll$' })) {
         $errors.Add('Package contains no runtime DLLs')

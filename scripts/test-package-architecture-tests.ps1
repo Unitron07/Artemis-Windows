@@ -40,7 +40,7 @@ try {
     foreach ($arch in @('arm64', 'x64')) {
         $machine = if ($arch -eq 'arm64') { 0xAA64 } else { 0x8664 }
         $files = @{
-            'Moonlight.exe' = (New-PeHeader $machine)
+            'Asteria.exe' = (New-PeHeader $machine)
             'AntiHooking.dll' = (New-PeHeader $machine)
             'plugins/platforms/qwindows.DLL' = (New-PeHeader $machine)
             'qml/nested/plugin.dll' = (New-PeHeader $machine)
@@ -52,7 +52,7 @@ try {
         Test-Package "contaminated-$arch" $files $arch 'contaminant.dll: Machine'
     }
     foreach ($machine in @(0x014C, 0xA641, 0xA64E, 0)) {
-        Test-Package "unsupported-$machine" @{'Moonlight.exe' = (New-PeHeader 0xAA64); 'bad.dll' = (New-PeHeader $machine)} arm64 'bad.dll: Machine'
+        Test-Package "unsupported-$machine" @{'Asteria.exe' = (New-PeHeader 0xAA64); 'bad.dll' = (New-PeHeader $machine)} arm64 'bad.dll: Machine'
     }
     foreach ($kind in @('dos', 'offset', 'signature', 'optional', 'truncated')) {
         $bad = New-PeHeader 0xAA64
@@ -63,11 +63,11 @@ try {
             optional { $bad[88] = 0 }
             truncated { $bad = [byte[]]@(1, 2) }
         }
-        Test-Package "malformed-$kind" @{'Moonlight.exe' = (New-PeHeader 0xAA64); 'nested/bad.dll' = $bad} arm64 'nested/bad.dll:'
+        Test-Package "malformed-$kind" @{'Asteria.exe' = (New-PeHeader 0xAA64); 'nested/bad.dll' = $bad} arm64 'nested/bad.dll:'
     }
-    Test-Package empty @{} arm64 'missing Moonlight.exe'
-    Test-Package missing-client @{'Qt6Core.dll' = (New-PeHeader 0xAA64)} arm64 'missing Moonlight.exe'
-    Test-Package missing-runtime @{'Moonlight.exe' = (New-PeHeader 0xAA64)} arm64 'no runtime DLLs'
+    Test-Package empty @{} arm64 'missing Asteria.exe'
+    Test-Package missing-client @{'Qt6Core.dll' = (New-PeHeader 0xAA64)} arm64 'missing Asteria.exe'
+    Test-Package missing-runtime @{'Asteria.exe' = (New-PeHeader 0xAA64)} arm64 'no runtime DLLs'
     Write-Host 'All package architecture tests passed.'
 } finally {
     $resolvedScratch = [IO.Path]::GetFullPath($scratch)
